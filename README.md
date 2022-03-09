@@ -1,5 +1,5 @@
-# semgrep-&lt;LANG&gt;
+# semgrep-swift
 
-Generated &lt;LANG&gt; parser code for semgrep.
+Generated Swift parser code for semgrep.
 
 [Instructions for updating this repo](https://github.com/returntocorp/ocaml-tree-sitter/blob/master/doc/release.md)
