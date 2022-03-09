@@ -1,0 +1,43 @@
+File: semgrep-grammars/src/tree-sitter-swift/LICENSE
+Git repo name: tree-sitter-swift
+Latest commit in repo: b21d9bd98b2ed72bc7986824a70c151b31da4734
+Last change in file:
+  commit 90cd9604a7db32fbec45a040a7bdb6aaa89b565c
+  Author: alex-pinkus <62194897+alex-pinkus@users.noreply.github.com>
+  Date:   Sat Aug 14 09:10:20 2021 -0700
+  
+      Initial commit
+---
+File: semgrep-grammars/src/tree-sitter-swift/grammar.js
+Git repo name: tree-sitter-swift
+Latest commit in repo: b21d9bd98b2ed72bc7986824a70c151b31da4734
+Last change in file:
+  commit ede22f673dfc2f45cfef7ca0168e62af5cac5fd5
+  Author: Alex Pinkus <alex.pinkus@gmail.com>
+  Date:   Tue Mar 8 21:52:55 2022 -0800
+  
+      Manually inline `_locally_permitted_modifiers`
+      
+      See https://github.com/returntocorp/ocaml-tree-sitter-semgrep/issues/286
+      
+      When generating a simplified grammar, the `ocaml-tree-sitter` code
+      generator forces all hidden nodes to be visible. It appears that hidden
+      nodes automatically get marked as `inline`, and that without that
+      auto-inlining, the `_locally_permitted_modifiers` rule causes a
+      conflict.
+      
+      Rather than making the semgrep folks work around their conflict, we just
+      check the `inline` declaration into the grammar itself so that it sticks
+      around in the simplified grammar.
+---
+File: semgrep-grammars/src/semgrep-swift/grammar.js
+Git repo name: ocaml-tree-sitter-semgrep
+Latest commit in repo: 9eb829aa5c7a027700288ddac92e68db6ded4701
+Last change in file:
+  commit 253e76b54d35ee3e541b1413bde1f2b22cc21ea4
+  Author: Martin Jambon <martin@r2c.dev>
+  Date:   Tue Mar 8 23:56:13 2022 -0800
+  
+      Try and fail to work around problem of multiline comment that may be
+      both an extra and must occur in a specific rule
+---
