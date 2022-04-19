@@ -469,10 +469,12 @@ module.exports = grammar({
       prec.right(
         PRECS.range,
         seq(
-          choice($._open_ended_range_operator, $._three_dot_operator),
+          $._range_operator,
           prec.right(PRECS.range_suffix, field("end", $._expression))
         )
       ),
+    _range_operator: ($) =>
+      choice($._open_ended_range_operator, $._three_dot_operator),
     open_end_range_expression: ($) =>
       prec.right(
         PRECS.range,
@@ -510,7 +512,6 @@ module.exports = grammar({
         $.check_expression,
         $.equality_expression,
         $.comparison_expression,
-        $.equality_expression,
         $.conjunction_expression,
         $.disjunction_expression,
         $.bitwise_operation
@@ -538,10 +539,7 @@ module.exports = grammar({
         PRECS.range,
         seq(
           field("start", $._expression),
-          field(
-            "op",
-            choice($._open_ended_range_operator, $._three_dot_operator)
-          ),
+          field("op", $._range_operator),
           field("end", $._expression)
         )
       ),
@@ -1117,14 +1115,9 @@ module.exports = grammar({
         )
       ),
     availability_condition: ($) =>
-      seq(
-        "#available",
-        "(",
-        sep1(choice($._availability_argument, "*"), ","),
-        ")"
-      ),
+      seq("#available", "(", sep1($._availability_argument, ","), ")"),
     _availability_argument: ($) =>
-      seq($.identifier, sep1($.integer_literal, ".")),
+      choice(seq($.identifier, sep1($.integer_literal, ".")), "*"),
     ////////////////////////////////
     // Declarations - https://docs.swift.org/swift-book/ReferenceManual/Declarations.html
     ////////////////////////////////
@@ -1437,16 +1430,16 @@ module.exports = grammar({
         sep1(
           seq(
             field("name", $.simple_identifier),
-            optional(
-              choice(
-                field("data_contents", $.enum_type_parameters),
-                seq($._equal_sign, field("raw_value", $._expression))
-              )
-            )
+            optional($._enum_entry_suffix)
           ),
           ","
         ),
         optional(";")
+      ),
+    _enum_entry_suffix: ($) =>
+      choice(
+        field("data_contents", $.enum_type_parameters),
+        seq($._equal_sign, field("raw_value", $._expression))
       ),
     enum_type_parameters: ($) =>
       seq(
@@ -1514,14 +1507,7 @@ module.exports = grammar({
             )
           ),
           optional($.type_constraints),
-          "{",
-          choice(
-            optional($.statements),
-            repeat(
-              choice($.computed_getter, $.computed_setter, $.computed_modify)
-            )
-          ),
-          "}"
+          $.computed_property
         )
       ),
     computed_property: ($) =>
@@ -1636,6 +1622,7 @@ module.exports = grammar({
         optional($.type_annotation)
       ),
     wildcard_pattern: ($) => "_",
+    binding_pattern_kind: ($) => choice("var", "let"),
     value_binding_pattern: ($) =>
       prec.left(
         choice(
@@ -1792,8 +1779,8 @@ function generate_pattern_matching_rule(
     generate_type_casting_pattern($, allows_binding),
   ];
   var binding_pattern_prefix = allows_case_keyword
-    ? seq(optional("case"), choice("var", "let"))
-    : choice("var", "let");
+    ? seq(optional("case"), $.binding_pattern_kind)
+    : $.binding_pattern_kind;
   var binding_pattern_if_allowed = allows_binding
     ? [
         seq(
@@ -1807,7 +1794,7 @@ function generate_pattern_matching_rule(
     : generate_case_pattern($, allows_binding);
   var expression_pattern = allows_expressions
     ? $._expression
-    : $.simple_identifier;
+    : field("bound_identifier", $.simple_identifier);
   var all_patterns = always_allowed_patterns
     .concat(binding_pattern_if_allowed)
     .concat(case_pattern)
