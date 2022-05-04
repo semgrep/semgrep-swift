@@ -1251,7 +1251,10 @@ let children_regexps : (string * Run.exp option) list = [
     Seq [
       Token (Name "expression");
       Token (Name "conjunction_operator");
-      Token (Name "expression");
+      Alt [|
+        Token (Name "expression");
+        Token (Name "expr_hack_at_ternary_binary_call");
+      |];
     ];
   );
   "constructor_expression",
@@ -1525,14 +1528,14 @@ let children_regexps : (string * Run.exp option) list = [
       Token (Name "expression");
     ];
   );
-  "expr_hack_at_ternary_call",
+  "expr_hack_at_ternary_binary_call",
   Some (
     Seq [
       Token (Name "expression");
-      Token (Name "expr_hack_at_ternary_call_suffix");
+      Token (Name "expr_hack_at_ternary_binary_call_suffix");
     ];
   );
-  "expr_hack_at_ternary_call_suffix",
+  "expr_hack_at_ternary_binary_call_suffix",
   Some (
     Token (Name "value_arguments");
   );
@@ -2915,7 +2918,7 @@ let children_regexps : (string * Run.exp option) list = [
       Token (Literal ":");
       Alt [|
         Token (Name "expression");
-        Token (Name "expr_hack_at_ternary_call");
+        Token (Name "expr_hack_at_ternary_binary_call");
       |];
     ];
   );
@@ -2932,6 +2935,7 @@ let children_regexps : (string * Run.exp option) list = [
       Token (Name "try_operator");
       Alt [|
         Token (Name "expression");
+        Token (Name "binary_expression");
         Token (Name "call_expression");
         Token (Name "ternary_expression");
       |];
@@ -3292,10 +3296,18 @@ let children_regexps : (string * Run.exp option) list = [
       Opt (
         Token (Name "shebang_line");
       );
-      Repeat (
+      Opt (
         Seq [
           Token (Name "top_level_statement");
-          Token (Name "semi");
+          Repeat (
+            Seq [
+              Token (Name "semi");
+              Token (Name "top_level_statement");
+            ];
+          );
+          Opt (
+            Token (Name "semi");
+          );
         ];
       );
     ];
@@ -6157,7 +6169,17 @@ and trans_conjunction_expression ((kind, body) : mt) : CST.conjunction_expressio
           (
             trans_expression (Run.matcher_token v0),
             trans_conjunction_operator (Run.matcher_token v1),
-            trans_expression (Run.matcher_token v2)
+            (match v2 with
+            | Alt (0, v) ->
+                `Exp (
+                  trans_expression (Run.matcher_token v)
+                )
+            | Alt (1, v) ->
+                `Expr_hack_at_tern_bin_call (
+                  trans_expr_hack_at_ternary_binary_call (Run.matcher_token v)
+                )
+            | _ -> assert false
+            )
           )
       | _ -> assert false
       )
@@ -6712,20 +6734,20 @@ and trans_equality_expression ((kind, body) : mt) : CST.equality_expression =
       )
   | Leaf _ -> assert false
 
-and trans_expr_hack_at_ternary_call ((kind, body) : mt) : CST.expr_hack_at_ternary_call =
+and trans_expr_hack_at_ternary_binary_call ((kind, body) : mt) : CST.expr_hack_at_ternary_binary_call =
   match body with
   | Children v ->
       (match v with
       | Seq [v0; v1] ->
           (
             trans_expression (Run.matcher_token v0),
-            trans_expr_hack_at_ternary_call_suffix (Run.matcher_token v1)
+            trans_expr_hack_at_ternary_binary_call_suffix (Run.matcher_token v1)
           )
       | _ -> assert false
       )
   | Leaf _ -> assert false
 
-and trans_expr_hack_at_ternary_call_suffix ((kind, body) : mt) : CST.expr_hack_at_ternary_call_suffix =
+and trans_expr_hack_at_ternary_binary_call_suffix ((kind, body) : mt) : CST.expr_hack_at_ternary_binary_call_suffix =
   match body with
   | Children v ->
       trans_value_arguments (Run.matcher_token v)
@@ -9595,8 +9617,8 @@ and trans_ternary_expression ((kind, body) : mt) : CST.ternary_expression =
                   trans_expression (Run.matcher_token v)
                 )
             | Alt (1, v) ->
-                `Expr_hack_at_tern_call (
-                  trans_expr_hack_at_ternary_call (Run.matcher_token v)
+                `Expr_hack_at_tern_bin_call (
+                  trans_expr_hack_at_ternary_binary_call (Run.matcher_token v)
                 )
             | _ -> assert false
             )
@@ -9631,10 +9653,14 @@ and trans_try_expression ((kind, body) : mt) : CST.try_expression =
                   trans_expression (Run.matcher_token v)
                 )
             | Alt (1, v) ->
+                `Bin_exp (
+                  trans_binary_expression (Run.matcher_token v)
+                )
+            | Alt (2, v) ->
                 `Call_exp (
                   trans_call_expression (Run.matcher_token v)
                 )
-            | Alt (2, v) ->
+            | Alt (3, v) ->
                 `Tern_exp (
                   trans_ternary_expression (Run.matcher_token v)
                 )
@@ -10440,13 +10466,28 @@ let trans_source_file ((kind, body) : mt) : CST.source_file =
               (fun v -> trans_shebang_line (Run.matcher_token v))
               v0
             ,
-            Run.repeat
+            Run.opt
               (fun v ->
                 (match v with
-                | Seq [v0; v1] ->
+                | Seq [v0; v1; v2] ->
                     (
                       trans_top_level_statement (Run.matcher_token v0),
-                      trans_semi (Run.matcher_token v1)
+                      Run.repeat
+                        (fun v ->
+                          (match v with
+                          | Seq [v0; v1] ->
+                              (
+                                trans_semi (Run.matcher_token v0),
+                                trans_top_level_statement (Run.matcher_token v1)
+                              )
+                          | _ -> assert false
+                          )
+                        )
+                        v1
+                      ,
+                      Run.opt
+                        (fun v -> trans_semi (Run.matcher_token v))
+                        v2
                     )
                 | _ -> assert false
                 )

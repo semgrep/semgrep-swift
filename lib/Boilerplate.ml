@@ -694,11 +694,15 @@ and map_anon_choice_equal_sign_exp_74a2b17 (env : env) (x : CST.anon_choice_equa
   | `Comp_prop x -> map_computed_property env x
   )
 
-and map_anon_choice_exp_129f951 (env : env) (x : CST.anon_choice_exp_129f951) =
+and map_anon_choice_exp_764291a (env : env) (x : CST.anon_choice_exp_764291a) =
   (match x with
   | `Exp x -> map_expression env x
-  | `Call_exp x -> map_call_expression env x
-  | `Tern_exp x -> map_ternary_expression env x
+  | `Expr_hack_at_tern_bin_call (v1, v2) ->
+      let v1 = map_expression env v1 in
+      let v2 =
+        map_expr_hack_at_ternary_binary_call_suffix env v2
+      in
+      todo env (v1, v2)
   )
 
 and map_anon_choice_is_type_846e790 (env : env) (x : CST.anon_choice_is_type_846e790) =
@@ -961,7 +965,7 @@ and map_binary_expression (env : env) (x : CST.binary_expression) =
   | `Conj_exp (v1, v2, v3) ->
       let v1 = map_expression env v1 in
       let v2 = (* conjunction_operator_custom *) token env v2 in
-      let v3 = map_expression env v3 in
+      let v3 = map_anon_choice_exp_764291a env v3 in
       todo env (v1, v2, v3)
   | `Disj_exp (v1, v2, v3) ->
       let v1 = map_expression env v1 in
@@ -1055,7 +1059,7 @@ and map_call_expression (env : env) ((v1, v2) : CST.call_expression) =
 and map_call_suffix (env : env) (v1 : CST.call_suffix) =
   (match v1 with
   | `Value_args x ->
-      map_expr_hack_at_ternary_call_suffix env x
+      map_expr_hack_at_ternary_binary_call_suffix env x
   | `Lambda_lit_rep_simple_id_COLON_lambda_lit (v1, v2) ->
       let v1 = map_lambda_literal env v1 in
       let v2 =
@@ -1408,12 +1412,7 @@ and map_enum_entry_suffix (env : env) (x : CST.enum_entry_suffix) =
       todo env (v1, v2)
   )
 
-and map_expr_hack_at_ternary_call (env : env) ((v1, v2) : CST.expr_hack_at_ternary_call) =
-  let v1 = map_expression env v1 in
-  let v2 = map_expr_hack_at_ternary_call_suffix env v2 in
-  todo env (v1, v2)
-
-and map_expr_hack_at_ternary_call_suffix (env : env) (x : CST.expr_hack_at_ternary_call_suffix) =
+and map_expr_hack_at_ternary_binary_call_suffix (env : env) (x : CST.expr_hack_at_ternary_binary_call_suffix) =
   map_value_arguments env x
 
 and map_expression (env : env) (x : CST.expression) =
@@ -2267,11 +2266,24 @@ and map_primary_expression (env : env) (x : CST.primary_expression) =
   | `Super_exp v1 -> (* "super" *) token env v1
   | `Try_exp (v1, v2) ->
       let v1 = map_try_operator env v1 in
-      let v2 = map_anon_choice_exp_129f951 env v2 in
+      let v2 =
+        (match v2 with
+        | `Exp x -> map_expression env x
+        | `Bin_exp x -> map_binary_expression env x
+        | `Call_exp x -> map_call_expression env x
+        | `Tern_exp x -> map_ternary_expression env x
+        )
+      in
       todo env (v1, v2)
   | `Await_exp (v1, v2) ->
       let v1 = (* "await" *) token env v1 in
-      let v2 = map_anon_choice_exp_129f951 env v2 in
+      let v2 =
+        (match v2 with
+        | `Exp x -> map_expression env x
+        | `Call_exp x -> map_call_expression env x
+        | `Tern_exp x -> map_ternary_expression env x
+        )
+      in
       todo env (v1, v2)
   | `Refe_op x -> map_referenceable_operator env x
   | `Key_path_exp (v1, v2, v3) ->
@@ -2586,13 +2598,7 @@ and map_ternary_expression (env : env) ((v1, v2, v3, v4, v5) : CST.ternary_expre
   let v2 = (* "?" *) token env v2 in
   let v3 = map_expression env v3 in
   let v4 = (* ":" *) token env v4 in
-  let v5 =
-    (match v5 with
-    | `Exp x -> map_expression env x
-    | `Expr_hack_at_tern_call x ->
-        map_expr_hack_at_ternary_call env x
-    )
-  in
+  let v5 = map_anon_choice_exp_764291a env v5 in
   todo env (v1, v2, v3, v4, v5)
 
 and map_throw_statement (env : env) ((v1, v2) : CST.throw_statement) =
@@ -3020,10 +3026,22 @@ let map_source_file (env : env) ((v1, v2) : CST.source_file) =
     | None -> todo env ())
   in
   let v2 =
-    List.map (fun (v1, v2) ->
-      let v1 = map_top_level_statement env v1 in
-      let v2 = (* semi *) token env v2 in
-      todo env (v1, v2)
-    ) v2
+    (match v2 with
+    | Some (v1, v2, v3) ->
+        let v1 = map_top_level_statement env v1 in
+        let v2 =
+          List.map (fun (v1, v2) ->
+            let v1 = (* semi *) token env v1 in
+            let v2 = map_top_level_statement env v2 in
+            todo env (v1, v2)
+          ) v2
+        in
+        let v3 =
+          (match v3 with
+          | Some tok -> (* semi *) token env tok
+          | None -> todo env ())
+        in
+        todo env (v1, v2, v3)
+    | None -> todo env ())
   in
   todo env (v1, v2)

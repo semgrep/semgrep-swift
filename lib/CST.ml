@@ -548,10 +548,11 @@ and anon_choice_equal_sign_exp_74a2b17 = [
   | `Comp_prop of computed_property
 ]
 
-and anon_choice_exp_129f951 = [
+and anon_choice_exp_764291a = [
     `Exp of expression
-  | `Call_exp of call_expression
-  | `Tern_exp of ternary_expression
+  | `Expr_hack_at_tern_bin_call of (
+        expression * expr_hack_at_ternary_binary_call_suffix
+    )
 ]
 
 and anon_choice_is_type_846e790 = [
@@ -675,7 +676,8 @@ and binary_expression = [
   | `Equa_exp of (expression * equality_operator * expression)
   | `Comp_exp of (expression * comparison_operator * expression)
   | `Conj_exp of (
-        expression * conjunction_operator_custom (*tok*) * expression
+        expression * conjunction_operator_custom (*tok*)
+      * anon_choice_exp_764291a
     )
   | `Disj_exp of (
         expression * disjunction_operator_custom (*tok*) * expression
@@ -726,7 +728,7 @@ and bodyless_function_declaration = (
 and call_expression = (expression * call_suffix)
 
 and call_suffix = [
-    `Value_args of expr_hack_at_ternary_call_suffix
+    `Value_args of expr_hack_at_ternary_binary_call_suffix
   | `Lambda_lit_rep_simple_id_COLON_lambda_lit of (
         lambda_literal
       * (simple_identifier * Token.t (* ":" *) * lambda_literal)
@@ -903,11 +905,7 @@ and enum_entry_suffix = [
   | `Equal_sign_exp of (eq_custom (*tok*) * expression)
 ]
 
-and expr_hack_at_ternary_call = (
-    expression * expr_hack_at_ternary_call_suffix
-)
-
-and expr_hack_at_ternary_call_suffix = value_arguments
+and expr_hack_at_ternary_binary_call_suffix = value_arguments
 
 and expression = [
     `Simple_id of simple_identifier
@@ -1339,8 +1337,23 @@ and primary_expression = [
     )
   | `Self_exp of Token.t (* "self" *)
   | `Super_exp of Token.t (* "super" *)
-  | `Try_exp of (try_operator * anon_choice_exp_129f951)
-  | `Await_exp of (Token.t (* "await" *) * anon_choice_exp_129f951)
+  | `Try_exp of (
+        try_operator
+      * [
+            `Exp of expression
+          | `Bin_exp of binary_expression
+          | `Call_exp of call_expression
+          | `Tern_exp of ternary_expression
+        ]
+    )
+  | `Await_exp of (
+        Token.t (* "await" *)
+      * [
+            `Exp of expression
+          | `Call_exp of call_expression
+          | `Tern_exp of ternary_expression
+        ]
+    )
   | `Refe_op of referenceable_operator
   | `Key_path_exp of (
         Token.t (* "\\" *)
@@ -1499,14 +1512,8 @@ and switch_statement = (
 )
 
 and ternary_expression = (
-    expression
-  * Token.t (* "?" *)
-  * expression
-  * Token.t (* ":" *)
-  * [
-        `Exp of expression
-      | `Expr_hack_at_tern_call of expr_hack_at_ternary_call
-    ]
+    expression * Token.t (* "?" *) * expression * Token.t (* ":" *)
+  * anon_choice_exp_764291a
 )
 
 and throw_statement = (Token.t (* "throw" *) * expression)
@@ -1748,7 +1755,12 @@ type top_level_statement = [
 
 type source_file = (
     shebang_line option
-  * (top_level_statement * semi (*tok*)) list (* zero or more *)
+  * (
+        top_level_statement
+      * (semi (*tok*) * top_level_statement) list (* zero or more *)
+      * semi (*tok*) option
+    )
+      option
 )
 [@@deriving sexp_of]
 
@@ -1914,7 +1926,12 @@ type assignment (* inlined *) = (
 [@@deriving sexp_of]
 
 type await_expression (* inlined *) = (
-    Token.t (* "await" *) * anon_choice_exp_129f951
+    Token.t (* "await" *)
+  * [
+        `Exp of expression
+      | `Call_exp of call_expression
+      | `Tern_exp of ternary_expression
+    ]
 )
 [@@deriving sexp_of]
 
@@ -1934,7 +1951,8 @@ type comparison_expression (* inlined *) = (
 [@@deriving sexp_of]
 
 type conjunction_expression (* inlined *) = (
-    expression * conjunction_operator_custom (*tok*) * expression
+    expression * conjunction_operator_custom (*tok*)
+  * anon_choice_exp_764291a
 )
 [@@deriving sexp_of]
 
@@ -1997,6 +2015,11 @@ type equality_constraint (* inlined *) = (
 
 type equality_expression (* inlined *) = (
     expression * equality_operator * expression
+)
+[@@deriving sexp_of]
+
+type expr_hack_at_ternary_binary_call (* inlined *) = (
+    expression * expr_hack_at_ternary_binary_call_suffix
 )
 [@@deriving sexp_of]
 
@@ -2183,7 +2206,15 @@ type selector_expression (* inlined *) = (
 )
 [@@deriving sexp_of]
 
-type try_expression (* inlined *) = (try_operator * anon_choice_exp_129f951)
+type try_expression (* inlined *) = (
+    try_operator
+  * [
+        `Exp of expression
+      | `Bin_exp of binary_expression
+      | `Call_exp of call_expression
+      | `Tern_exp of ternary_expression
+    ]
+)
 [@@deriving sexp_of]
 
 let dump_tree root =
