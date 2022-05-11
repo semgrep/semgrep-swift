@@ -1,6 +1,6 @@
 File: semgrep-grammars/src/tree-sitter-swift/LICENSE
 Git repo name: tree-sitter-swift
-Latest commit in repo: c61122ad66daf4c878a392470ff4a364256878bf
+Latest commit in repo: 823de4f7e296789b264c83602e14e4a6e76f2da5
 Last change in file:
   commit 90cd9604a7db32fbec45a040a7bdb6aaa89b565c
   gpg: Signature made Sat 14 Aug 2021 09:10:20 AM PDT
@@ -13,33 +13,23 @@ Last change in file:
 ---
 File: semgrep-grammars/src/tree-sitter-swift/grammar.js
 Git repo name: tree-sitter-swift
-Latest commit in repo: c61122ad66daf4c878a392470ff4a364256878bf
+Latest commit in repo: 823de4f7e296789b264c83602e14e4a6e76f2da5
 Last change in file:
-  commit 074f82ffae7344caffd5850520f95ac66ee57133
-  Author: Alex Pinkus <alex.pinkus@gmail.com>
-  Date:   Sun May 8 15:23:33 2022 -0700
+  commit 823de4f7e296789b264c83602e14e4a6e76f2da5
+  gpg: Signature made Tue 10 May 2022 07:55:03 PM PDT
+  gpg:                using RSA key 4AEE18F83AFDEB23
+  gpg: Good signature from "GitHub (web-flow commit signing) <noreply@github.com>" [full]
+  Merge: 3bb2520 b880690
+  Author: Alex Pinkus <62194897+alex-pinkus@users.noreply.github.com>
+  Date:   Tue May 10 19:55:03 2022 -0700
   
-      Simplify pattern rules
+      Merge pull request #183 from nmote/dedup3
       
-      This change loosens pattern validity requirements for the sake of
-      greatly simplifying the grammar.
-      
-      This isn't going to be backwards compatible, so it also takes the
-      opportunity to reduce the user-visible pattern nodes down to just a
-      top-level `pattern` (repeated for any nested tuple patterns or
-      otherwise.
-      
-      By removing `generate_pattern_matching_rule`, we cut down significantly
-      on duplication, and nearly halve the number of valid states. This should
-      improve query parsing time and hopefully simplify integration for the
-      semgrep folks.
-      
-      This also fixes some pattern matching bugs where code that was treated
-      as invalid is actually valid.
+      Split expr hack suffix into its own rule
 ---
 File: semgrep-grammars/src/semgrep-swift/grammar.js
 Git repo name: ocaml-tree-sitter-semgrep
-Latest commit in repo: fe67dac8bfbbda4be37e2535a99cdd309ba33a49
+Latest commit in repo: e495b9d92a9af33748f255b2644bd497c877c6cf
 Last change in file:
   commit 4970334dd35b20d443f2ee6b5d7936e972bd6112
   gpg: Signature made Tue 10 May 2022 04:28:01 PM PDT

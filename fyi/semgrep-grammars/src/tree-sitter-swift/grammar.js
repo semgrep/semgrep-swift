@@ -95,6 +95,7 @@ module.exports = grammar({
   conflicts: ($) => [
     // @Type(... could either be an annotation constructor invocation or an annotated expression
     [$.attribute],
+    [$._attribute_argument],
     // Is `foo { ... }` a constructor invocation or function invocation?
     [$._simple_user_type, $._expression],
     // To support nested types A.B not being interpreted as `(navigation_expression ... (type_identifier)) (navigation_suffix)`
@@ -604,16 +605,7 @@ module.exports = grammar({
         seq(
           field("lhs", $._expression),
           field("op", $._conjunction_operator),
-          prec.left(
-            PRECS.ternary_binary_suffix,
-            field(
-              "rhs",
-              choice(
-                $._expression,
-                alias($.expr_hack_at_ternary_binary_call, $.call_expression)
-              )
-            )
-          )
+          field("rhs", $._expr_hack_at_ternary_binary_suffix)
         )
       ),
     disjunction_expression: ($) =>
@@ -746,16 +738,15 @@ module.exports = grammar({
           $._quest,
           field("if_true", $._expression),
           ":",
-          prec.left(
-            PRECS.ternary_binary_suffix,
-            field(
-              "if_false",
-              choice(
-                $._expression,
-                alias($.expr_hack_at_ternary_binary_call, $.call_expression)
-              )
-            )
-          )
+          field("if_false", $._expr_hack_at_ternary_binary_suffix)
+        )
+      ),
+    _expr_hack_at_ternary_binary_suffix: ($) =>
+      prec.left(
+        PRECS.ternary_binary_suffix,
+        choice(
+          $._expression,
+          alias($.expr_hack_at_ternary_binary_call, $.call_expression)
         )
       ),
     expr_hack_at_ternary_binary_call: ($) =>
@@ -1229,19 +1220,18 @@ module.exports = grammar({
       prec.right(
         seq(
           $._possibly_async_binding_pattern_kind,
-          sep1(
-            seq(
-              field("name", alias($._no_expr_pattern_already_bound, $.pattern)),
-              optional($.type_annotation),
-              optional($.type_constraints),
-              optional(
-                choice(
-                  seq($._equal_sign, field("value", $._expression)),
-                  field("computed_value", $.computed_property)
-                )
-              )
-            ),
-            ","
+          sep1($._single_modifierless_property_declaration, ",")
+        )
+      ),
+    _single_modifierless_property_declaration: ($) =>
+      seq(
+        field("name", alias($._no_expr_pattern_already_bound, $.pattern)),
+        optional($.type_annotation),
+        optional($.type_constraints),
+        optional(
+          choice(
+            seq($._equal_sign, field("value", $._expression)),
+            field("computed_value", $.computed_property)
           )
         )
       ),
@@ -1584,25 +1574,18 @@ module.exports = grammar({
         "@",
         $.user_type,
         // attribute arguments are a mess of special cases, maybe this is good enough?
-        optional(
-          seq(
-            "(",
-            sep1(
-              choice(
-                // labeled function parameters, used in custom property wrappers
-                seq($.simple_identifier, ":", $._expression),
-                // Unlabeled function parameters, simple identifiers, or `*`
-                $._expression,
-                // References to param names (used in `@objc(foo:bar:)`)
-                repeat1(seq($.simple_identifier, ":")),
-                // Version restrictions (iOS 3.4.5, Swift 5.0.0)
-                seq(repeat1($.simple_identifier), sep1($.integer_literal, "."))
-              ),
-              ","
-            ),
-            ")"
-          )
-        )
+        optional(seq("(", sep1($._attribute_argument, ","), ")"))
+      ),
+    _attribute_argument: ($) =>
+      choice(
+        // labeled function parameters, used in custom property wrappers
+        seq($.simple_identifier, ":", $._expression),
+        // Unlabeled function parameters, simple identifiers, or `*`
+        $._expression,
+        // References to param names (used in `@objc(foo:bar:)`)
+        repeat1(seq($.simple_identifier, ":")),
+        // Version restrictions (iOS 3.4.5, Swift 5.0.0)
+        seq(repeat1($.simple_identifier), sep1($.integer_literal, "."))
       ),
     ////////////////////////////////
     // Patterns - https://docs.swift.org/swift-book/ReferenceManual/Patterns.html
