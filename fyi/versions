@@ -39,12 +39,25 @@ Last change in file:
 ---
 File: semgrep-grammars/src/semgrep-swift/grammar.js
 Git repo name: ocaml-tree-sitter-semgrep
-Latest commit in repo: 7a1829a27947558cfbefd26d9af24ba373a18e87
+Latest commit in repo: fe67dac8bfbbda4be37e2535a99cdd309ba33a49
 Last change in file:
-  commit 253e76b54d35ee3e541b1413bde1f2b22cc21ea4
-  Author: Martin Jambon <martin@r2c.dev>
-  Date:   Tue Mar 8 23:56:13 2022 -0800
+  commit 4970334dd35b20d443f2ee6b5d7936e972bd6112
+  gpg: Signature made Tue 10 May 2022 04:28:01 PM PDT
+  gpg:                using RSA key C1930C5F9C9E0472DCF9ECC97D71116F505E5145
+  gpg: Good signature from "Nathaniel Mote <nat@r2c.dev>" [ultimate]
+  gpg:                 aka "Nathaniel Mote <nat@natmote.net>" [ultimate]
+  Author: Nat Mote <nat@r2c.dev>
+  Date:   Tue May 10 11:04:04 2022 -0700
   
-      Try and fail to work around problem of multiline comment that may be
-      both an extra and must occur in a specific rule
+      feat(swift): Parse semgrep_ellipsis
+      
+      This introduces a `semgrep_ellipsis` rule that is a valid expression. It
+      conflicts with the existing unbounded range operator. This conflict is
+      resolved as described in the comment.
+      
+      Test plan:
+      
+      Existing tests ensure that unbounded ranges are parsed as they used to
+      be. The added tests make that clear, and also demonstrate a case where
+      an ellipsis is now parsed. That example used to be a parse error.
 ---
