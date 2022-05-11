@@ -1,6 +1,6 @@
 File: semgrep-grammars/src/tree-sitter-swift/LICENSE
 Git repo name: tree-sitter-swift
-Latest commit in repo: 2041ce4be29e37c58b1d1d9592a64b155cdd9d82
+Latest commit in repo: c61122ad66daf4c878a392470ff4a364256878bf
 Last change in file:
   commit 90cd9604a7db32fbec45a040a7bdb6aaa89b565c
   gpg: Signature made Sat 14 Aug 2021 09:10:20 AM PDT
@@ -13,24 +13,33 @@ Last change in file:
 ---
 File: semgrep-grammars/src/tree-sitter-swift/grammar.js
 Git repo name: tree-sitter-swift
-Latest commit in repo: 2041ce4be29e37c58b1d1d9592a64b155cdd9d82
+Latest commit in repo: c61122ad66daf4c878a392470ff4a364256878bf
 Last change in file:
-  commit ba8f4e65d444b7690599741956ab3cc809c95ede
-  Author: Nat Mote <nat@r2c.dev>
-  Date:   Wed Apr 27 16:38:02 2022 -0700
+  commit 074f82ffae7344caffd5850520f95ac66ee57133
+  Author: Alex Pinkus <alex.pinkus@gmail.com>
+  Date:   Sun May 8 15:23:33 2022 -0700
   
-      Parse files that end without a newline or semicolon
+      Simplify pattern rules
       
-      See #166
+      This change loosens pattern validity requirements for the sake of
+      greatly simplifying the grammar.
       
-      ```
-      $ echo -n "print(3)" > nonewline.swift
-      $ npx tree-sitter parse nonewline.swift # No parse error
-      ```
+      This isn't going to be backwards compatible, so it also takes the
+      opportunity to reduce the user-visible pattern nodes down to just a
+      top-level `pattern` (repeated for any nested tuple patterns or
+      otherwise.
+      
+      By removing `generate_pattern_matching_rule`, we cut down significantly
+      on duplication, and nearly halve the number of valid states. This should
+      improve query parsing time and hopefully simplify integration for the
+      semgrep folks.
+      
+      This also fixes some pattern matching bugs where code that was treated
+      as invalid is actually valid.
 ---
 File: semgrep-grammars/src/semgrep-swift/grammar.js
 Git repo name: ocaml-tree-sitter-semgrep
-Latest commit in repo: bb4ae87d1ff641fe650f002b4a91a2b70d949fd2
+Latest commit in repo: 7a1829a27947558cfbefd26d9af24ba373a18e87
 Last change in file:
   commit 253e76b54d35ee3e541b1413bde1f2b22cc21ea4
   Author: Martin Jambon <martin@r2c.dev>

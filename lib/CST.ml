@@ -8,15 +8,15 @@
 open! Sexplib.Conv
 open Tree_sitter_run
 
-type where_keyword = Token.t
+type optionally_valueful_control_keyword = [
+    `Ret of Token.t (* "return" *)
+  | `Cont of Token.t (* "continue" *)
+  | `Brk of Token.t (* "break" *)
+  | `Yield of Token.t (* "yield" *)
+]
 [@@deriving sexp_of]
 
-type ownership_modifier = [
-    `Weak of Token.t (* "weak" *)
-  | `Unow_7c8c304 of Token.t (* "unowned" *)
-  | `Unow_e455cde of Token.t (* "unowned(safe)" *)
-  | `Unow_8fda70e of Token.t (* "unowned(unsafe)" *)
-]
+type raw_str_part = Token.t
 [@@deriving sexp_of]
 
 type catch_keyword = Token.t
@@ -31,27 +31,29 @@ type conjunction_operator_custom = Token.t
 type minus_then_ws = Token.t
 [@@deriving sexp_of]
 
-type real_literal = Token.t
+type raw_str_interpolation_start = Token.t (* pattern \\#*\( *)
 [@@deriving sexp_of]
 
-type raw_str_part = Token.t
+type raw_str_end_part = Token.t
 [@@deriving sexp_of]
 
 type async_keyword_custom = Token.t
 [@@deriving sexp_of]
 
-type integer_literal = Token.t
+type async_modifier = Token.t
 [@@deriving sexp_of]
 
-type optionally_valueful_control_keyword = [
-    `Ret of Token.t (* "return" *)
-  | `Cont of Token.t (* "continue" *)
-  | `Brk of Token.t (* "break" *)
-  | `Yield of Token.t (* "yield" *)
+type parameter_modifier = [
+    `Inout of Token.t (* "inout" *)
+  | `ATes of Token.t (* "@escaping" *)
+  | `ATau of Token.t (* "@autoclosure" *)
 ]
 [@@deriving sexp_of]
 
-type tok_choice_pat_3425898 = Token.t
+type plus_then_ws = Token.t
+[@@deriving sexp_of]
+
+type integer_literal = Token.t
 [@@deriving sexp_of]
 
 type assignment_and_operator = [
@@ -64,7 +66,7 @@ type assignment_and_operator = [
 ]
 [@@deriving sexp_of]
 
-type raw_str_interpolation_start = Token.t (* pattern \\#*\( *)
+type raw_str_continuing_indicator = Token.t
 [@@deriving sexp_of]
 
 type mutation_modifier = [
@@ -88,33 +90,18 @@ type import_kind = [
 ]
 [@@deriving sexp_of]
 
-type try_operator = [
-    `Try of Token.t (* "try" *)
-  | `TryB of Token.t (* "try!" *)
-  | `TryQ of Token.t (* "try?" *)
-]
-[@@deriving sexp_of]
-
-type parameter_modifier = [
-    `Inout of Token.t (* "inout" *)
-  | `ATes of Token.t (* "@escaping" *)
-  | `ATau of Token.t (* "@autoclosure" *)
-]
-[@@deriving sexp_of]
-
-type bitwise_binary_operator = [
-    `AMP of Token.t (* "&" *)
-  | `BAR of Token.t (* "|" *)
-  | `HAT of Token.t (* "^" *)
-  | `LTLT of Token.t (* "<<" *)
-  | `GTGT of Token.t (* ">>" *)
-]
-[@@deriving sexp_of]
-
 type open_ended_range_operator_custom = Token.t
 [@@deriving sexp_of]
 
-type async_modifier = Token.t
+type tok_dollar_pat_9d0cc04 = Token.t
+[@@deriving sexp_of]
+
+type ownership_modifier = [
+    `Weak of Token.t (* "weak" *)
+  | `Unow_7c8c304 of Token.t (* "unowned" *)
+  | `Unow_e455cde of Token.t (* "unowned(safe)" *)
+  | `Unow_8fda70e of Token.t (* "unowned(unsafe)" *)
+]
 [@@deriving sexp_of]
 
 type boolean_literal = [
@@ -123,7 +110,19 @@ type boolean_literal = [
 ]
 [@@deriving sexp_of]
 
-type bin_literal = Token.t
+type binding_pattern_kind = [
+    `Var of Token.t (* "var" *)
+  | `Let of Token.t (* "let" *)
+]
+[@@deriving sexp_of]
+
+type semi = Token.t
+[@@deriving sexp_of]
+
+type oct_literal = Token.t
+[@@deriving sexp_of]
+
+type where_keyword = Token.t
 [@@deriving sexp_of]
 
 type multiplicative_operator = [
@@ -133,16 +132,13 @@ type multiplicative_operator = [
 ]
 [@@deriving sexp_of]
 
-type tok_dollar_pat_9d0cc04 = Token.t
+type throws_keyword = Token.t
 [@@deriving sexp_of]
 
-type pat_9d0cc04 = Token.t (* pattern [_\p{XID_Start}][_\p{XID_Continue}]* *)
+type pat_97d645c = Token.t (* pattern `[^\r\n` ]*` *)
 [@@deriving sexp_of]
 
-type raw_str_end_part = Token.t
-[@@deriving sexp_of]
-
-type rethrows_keyword = Token.t
+type real_literal = Token.t
 [@@deriving sexp_of]
 
 type as_quest_custom = Token.t
@@ -151,16 +147,16 @@ type as_quest_custom = Token.t
 type hex_literal = Token.t
 [@@deriving sexp_of]
 
-type semi = Token.t
+type rethrows_keyword = Token.t
+[@@deriving sexp_of]
+
+type bang = Token.t
 [@@deriving sexp_of]
 
 type else_ = Token.t
 [@@deriving sexp_of]
 
 type inheritance_modifier = [ `Final of Token.t (* "final" *) ]
-[@@deriving sexp_of]
-
-type three_dot_operator_custom = Token.t
 [@@deriving sexp_of]
 
 type member_modifier = [
@@ -170,35 +166,24 @@ type member_modifier = [
 ]
 [@@deriving sexp_of]
 
-type pat_f630af3 = Token.t (* pattern [^\r\n]* *)
-[@@deriving sexp_of]
-
-type statement_label = Token.t
+type pat_c332828 = Token.t (* pattern \$[0-9]+ *)
 [@@deriving sexp_of]
 
 type line_str_text = Token.t (* pattern "[^\\\\\"]+" *)
 [@@deriving sexp_of]
 
-type pat_97d645c = Token.t (* pattern `[^\r\n` ]*` *)
+type pat_888b548 = Token.t (* pattern \{[0-9a-fA-F]+\} *)
 [@@deriving sexp_of]
 
-type special_literal = [
-    `HASH_36725ee of Token.t (* "#file" *)
-  | `HASH_ee0b998 of Token.t (* "#fileID" *)
-  | `HASH_bd759bd of Token.t (* "#filePath" *)
-  | `HASH_709af6a of Token.t (* "#line" *)
-  | `HASH_be35129 of Token.t (* "#column" *)
-  | `HASH_96a7ced of Token.t (* "#function" *)
-  | `HASH_4d47dbe of Token.t (* "#dsohandle" *)
-]
+type tok_choice_pat_3425898 = Token.t
 [@@deriving sexp_of]
 
-type oct_literal = Token.t
-[@@deriving sexp_of]
-
-type binding_pattern_kind = [
-    `Var of Token.t (* "var" *)
-  | `Let of Token.t (* "let" *)
+type bitwise_binary_operator = [
+    `AMP of Token.t (* "&" *)
+  | `BAR of Token.t (* "|" *)
+  | `HAT of Token.t (* "^" *)
+  | `LTLT of Token.t (* "<<" *)
+  | `GTGT of Token.t (* ">>" *)
 ]
 [@@deriving sexp_of]
 
@@ -220,24 +205,6 @@ type function_modifier = [
 ]
 [@@deriving sexp_of]
 
-type throws_keyword = Token.t
-[@@deriving sexp_of]
-
-type nil_coalescing_operator_custom = Token.t
-[@@deriving sexp_of]
-
-type raw_str_continuing_indicator = Token.t
-[@@deriving sexp_of]
-
-type default_keyword = Token.t
-[@@deriving sexp_of]
-
-type disjunction_operator_custom = Token.t
-[@@deriving sexp_of]
-
-type eq_custom = Token.t
-[@@deriving sexp_of]
-
 type property_modifier = [
     `Static of Token.t (* "static" *)
   | `Dyna of Token.t (* "dynamic" *)
@@ -246,34 +213,72 @@ type property_modifier = [
 ]
 [@@deriving sexp_of]
 
+type nil_coalescing_operator_custom = Token.t
+[@@deriving sexp_of]
+
+type special_literal = [
+    `HASH_36725ee of Token.t (* "#file" *)
+  | `HASH_ee0b998 of Token.t (* "#fileID" *)
+  | `HASH_bd759bd of Token.t (* "#filePath" *)
+  | `HASH_709af6a of Token.t (* "#line" *)
+  | `HASH_be35129 of Token.t (* "#column" *)
+  | `HASH_96a7ced of Token.t (* "#function" *)
+  | `HASH_4d47dbe of Token.t (* "#dsohandle" *)
+]
+[@@deriving sexp_of]
+
+type default_keyword = Token.t
+[@@deriving sexp_of]
+
+type disjunction_operator_custom = Token.t
+[@@deriving sexp_of]
+
+type three_dot_operator_custom = Token.t
+[@@deriving sexp_of]
+
+type eq_custom = Token.t
+[@@deriving sexp_of]
+
+type statement_label = Token.t
+[@@deriving sexp_of]
+
 type escaped_identifier = Token.t (* pattern "\\\\[0\\\\tnr\"'\\n]" *)
 [@@deriving sexp_of]
 
 type dot_custom = Token.t
 [@@deriving sexp_of]
 
-type pat_888b548 = Token.t (* pattern \{[0-9a-fA-F]+\} *)
-[@@deriving sexp_of]
-
 type as_bang_custom = Token.t
 [@@deriving sexp_of]
 
-type plus_then_ws = Token.t
+type pat_f630af3 = Token.t (* pattern [^\r\n]* *)
+[@@deriving sexp_of]
+
+type try_operator = [
+    `Try of Token.t (* "try" *)
+  | `TryB of Token.t (* "try!" *)
+  | `TryQ of Token.t (* "try?" *)
+]
 [@@deriving sexp_of]
 
 type eq_eq_custom = Token.t
 [@@deriving sexp_of]
 
-type pat_c332828 = Token.t (* pattern \$[0-9]+ *)
+type pat_9d0cc04 = Token.t (* pattern [_\p{XID_Start}][_\p{XID_Continue}]* *)
 [@@deriving sexp_of]
 
-type bang = Token.t
+type bin_literal = Token.t
 [@@deriving sexp_of]
 
-type custom_operator = (
-    tok_choice_pat_3425898 (*tok*)
-  * Token.t (* "<" *) option
-)
+type parameter_modifiers = parameter_modifier list (* one or more *)
+[@@deriving sexp_of]
+
+type additive_operator = [
+    `Plus_then_ws of plus_then_ws (*tok*)
+  | `Minus_then_ws of minus_then_ws (*tok*)
+  | `PLUS of Token.t (* "+" *)
+  | `DASH of Token.t (* "-" *)
+]
 [@@deriving sexp_of]
 
 type setter_specifier = (mutation_modifier option * Token.t (* "set" *))
@@ -282,7 +287,23 @@ type setter_specifier = (mutation_modifier option * Token.t (* "set" *))
 type modify_specifier = (mutation_modifier option * Token.t (* "_modify" *))
 [@@deriving sexp_of]
 
-type parameter_modifiers = parameter_modifier list (* one or more *)
+type possibly_async_binding_pattern_kind = (
+    async_modifier (*tok*) option
+  * binding_pattern_kind
+)
+[@@deriving sexp_of]
+
+type throws = [
+    `Throws_kw of throws_keyword (*tok*)
+  | `Rethrs_kw of rethrows_keyword (*tok*)
+]
+[@@deriving sexp_of]
+
+type postfix_unary_operator = [
+    `PLUSPLUS of Token.t (* "++" *)
+  | `DASHDASH of Token.t (* "--" *)
+  | `Bang of bang (*tok*)
+]
 [@@deriving sexp_of]
 
 type locally_permitted_modifier = [
@@ -292,13 +313,10 @@ type locally_permitted_modifier = [
 ]
 [@@deriving sexp_of]
 
-type shebang_line = (Token.t (* "#!" *) * pat_f630af3 (*tok*))
-[@@deriving sexp_of]
-
-type throws = [
-    `Throws_kw of throws_keyword (*tok*)
-  | `Rethrs_kw of rethrows_keyword (*tok*)
-]
+type custom_operator = (
+    tok_choice_pat_3425898 (*tok*)
+  * Token.t (* "<" *) option
+)
 [@@deriving sexp_of]
 
 type non_local_scope_modifier = [
@@ -320,12 +338,13 @@ type non_local_scope_modifier = [
 ]
 [@@deriving sexp_of]
 
-type additive_operator = [
-    `Plus_then_ws of plus_then_ws (*tok*)
-  | `Minus_then_ws of minus_then_ws (*tok*)
-  | `PLUS of Token.t (* "+" *)
-  | `DASH of Token.t (* "-" *)
-]
+type constructor_function_decl = (
+    Token.t (* "init" *)
+  * [ `Quest of Token.t (* "?" *) | `Bang of bang (*tok*) ] option
+)
+[@@deriving sexp_of]
+
+type shebang_line = (Token.t (* "#!" *) * pat_f630af3 (*tok*))
 [@@deriving sexp_of]
 
 type simple_identifier = [
@@ -336,17 +355,17 @@ type simple_identifier = [
 ]
 [@@deriving sexp_of]
 
-type postfix_unary_operator = [
-    `PLUSPLUS of Token.t (* "++" *)
-  | `DASHDASH of Token.t (* "--" *)
-  | `Bang of bang (*tok*)
-]
+type getter_effects =
+  [ `Async_kw of async_keyword_custom (*tok*) | `Throws of throws ]
+    list (* one or more *)
 [@@deriving sexp_of]
 
-type constructor_function_decl = (
-    Token.t (* "init" *)
-  * [ `Quest of Token.t (* "?" *) | `Bang of bang (*tok*) ] option
-)
+type str_escaped_char = [
+    `Esca_id of escaped_identifier (*tok*)
+  | `Uni_char_lit of (
+        Token.t (* "\\" *) * Token.t (* "u" *) * pat_888b548 (*tok*)
+    )
+]
 [@@deriving sexp_of]
 
 type range_operator = [
@@ -368,14 +387,6 @@ type prefix_unary_operator = [
 ]
 [@@deriving sexp_of]
 
-type str_escaped_char = [
-    `Esca_id of escaped_identifier (*tok*)
-  | `Uni_char_lit of (
-        Token.t (* "\\" *) * Token.t (* "u" *) * pat_888b548 (*tok*)
-    )
-]
-[@@deriving sexp_of]
-
 type as_operator = [
     `As of as_custom (*tok*)
   | `As_quest of as_quest_custom (*tok*)
@@ -391,47 +402,14 @@ type equality_operator = [
 ]
 [@@deriving sexp_of]
 
-type identifier = (
-    simple_identifier
-  * (dot_custom (*tok*) * simple_identifier) list (* zero or more *)
-)
+type bound_identifier = simple_identifier
 [@@deriving sexp_of]
 
-type operator_declaration = (
-    [
-        `Prefix of Token.t (* "prefix" *)
-      | `Infix of Token.t (* "infix" *)
-      | `Post of Token.t (* "postfix" *)
-    ]
-  * Token.t (* "operator" *)
-  * custom_operator
-  * (Token.t (* ":" *) * simple_identifier) option
+type getter_specifier = (
+    mutation_modifier option
+  * Token.t (* "get" *)
+  * getter_effects option
 )
-[@@deriving sexp_of]
-
-type navigation_suffix = (
-    dot_custom (*tok*)
-  * [ `Simple_id of simple_identifier | `Int_lit of integer_literal (*tok*) ]
-)
-[@@deriving sexp_of]
-
-type tuple_type_item_identifier = (
-    Token.t (* "_" *) option
-  * simple_identifier
-  * Token.t (* ":" *)
-)
-[@@deriving sexp_of]
-
-type precedence_group_attribute = (
-    simple_identifier
-  * Token.t (* ":" *)
-  * [ `Simple_id of simple_identifier | `Bool_lit of boolean_literal ]
-)
-[@@deriving sexp_of]
-
-type getter_effects =
-  [ `Async_kw of async_keyword_custom (*tok*) | `Throws of throws ]
-    list (* one or more *)
 [@@deriving sexp_of]
 
 type line_string_content = [
@@ -460,6 +438,62 @@ type referenceable_operator = [
 ]
 [@@deriving sexp_of]
 
+type identifier = (
+    bound_identifier
+  * (dot_custom (*tok*) * bound_identifier) list (* zero or more *)
+)
+[@@deriving sexp_of]
+
+type operator_declaration = (
+    [
+        `Prefix of Token.t (* "prefix" *)
+      | `Infix of Token.t (* "infix" *)
+      | `Post of Token.t (* "postfix" *)
+    ]
+  * Token.t (* "operator" *)
+  * custom_operator
+  * (Token.t (* ":" *) * bound_identifier) option
+)
+[@@deriving sexp_of]
+
+type navigation_suffix = (
+    dot_custom (*tok*)
+  * [ `Simple_id of bound_identifier | `Int_lit of integer_literal (*tok*) ]
+)
+[@@deriving sexp_of]
+
+type tuple_type_item_identifier = (
+    Token.t (* "_" *) option
+  * bound_identifier
+  * Token.t (* ":" *)
+)
+[@@deriving sexp_of]
+
+type precedence_group_attribute = (
+    bound_identifier
+  * Token.t (* ":" *)
+  * [ `Simple_id of bound_identifier | `Bool_lit of boolean_literal ]
+)
+[@@deriving sexp_of]
+
+type protocol_property_requirements = (
+    Token.t (* "{" *)
+  * [ `Getter_spec of getter_specifier | `Setter_spec of setter_specifier ]
+      list (* zero or more *)
+  * Token.t (* "}" *)
+)
+[@@deriving sexp_of]
+
+type non_constructor_function_decl = (
+    Token.t (* "func" *)
+  * [
+        `Simple_id of bound_identifier
+      | `Refe_op of referenceable_operator
+      | `Bitw_bin_op of bitwise_binary_operator
+    ]
+)
+[@@deriving sexp_of]
+
 type availability_argument = [
     `Id_int_lit_rep_DOT_int_lit of (
         identifier
@@ -474,36 +508,11 @@ type precedence_group_attributes =
   precedence_group_attribute list (* one or more *)
 [@@deriving sexp_of]
 
-type getter_specifier = (
-    mutation_modifier option
-  * Token.t (* "get" *)
-  * getter_effects option
-)
-[@@deriving sexp_of]
-
-type non_constructor_function_decl = (
-    Token.t (* "func" *)
-  * [
-        `Simple_id of simple_identifier
-      | `Refe_op of referenceable_operator
-      | `Bitw_bin_op of bitwise_binary_operator
-    ]
-)
-[@@deriving sexp_of]
-
 type precedence_group_declaration = (
     Token.t (* "precedencegroup" *)
-  * simple_identifier
+  * bound_identifier
   * Token.t (* "{" *)
   * precedence_group_attributes option
-  * Token.t (* "}" *)
-)
-[@@deriving sexp_of]
-
-type protocol_property_requirements = (
-    Token.t (* "{" *)
-  * [ `Getter_spec of getter_specifier | `Setter_spec of setter_specifier ]
-      list (* zero or more *)
   * Token.t (* "}" *)
 )
 [@@deriving sexp_of]
@@ -513,35 +522,19 @@ type annotated_inheritance_specifier = (
   * inheritance_specifier
 )
 
-and anon_LPAR_choice_simple_id_COLON_bind_pat_rep_COMMA_choice_simple_id_COLON_bind_pat_RPAR_opt_quest_b7197cf = (
-    Token.t (* "(" *)
-  * anon_choice_simple_id_COLON_bind_pat_ff3f05b
-  * (Token.t (* "," *) * anon_choice_simple_id_COLON_bind_pat_ff3f05b)
-      list (* zero or more *)
-  * Token.t (* ")" *)
-  * Token.t (* "?" *) option
-)
-
-and anon_LPAR_choice_simple_id_COLON_non_bind_pat_with_expr_rep_COMMA_choice_simple_id_COLON_non_bind_pat_with_expr_RPAR_opt_quest_89a265e = (
-    Token.t (* "(" *)
-  * anon_choice_simple_id_COLON_non_bind_pat_with_expr_64db5e0
-  * (
-        Token.t (* "," *)
-      * anon_choice_simple_id_COLON_non_bind_pat_with_expr_64db5e0
+and anon_choice_bound_id_COLON_exp_9957b83 = [
+    `Simple_id_COLON_exp of (
+        bound_identifier * Token.t (* ":" *) * expression
     )
-      list (* zero or more *)
-  * Token.t (* ")" *)
-  * Token.t (* "?" *) option
-)
-
-and anon_LPAR_choice_simple_id_COLON_switch_pat_rep_COMMA_choice_simple_id_COLON_switch_pat_RPAR_opt_quest_ea305cb = (
-    Token.t (* "(" *)
-  * anon_choice_simple_id_COLON_switch_pat_19a0585
-  * (Token.t (* "," *) * anon_choice_simple_id_COLON_switch_pat_19a0585)
-      list (* zero or more *)
-  * Token.t (* ")" *)
-  * Token.t (* "?" *) option
-)
+  | `Exp of expression
+  | `Rep1_simple_id_COLON of
+      (bound_identifier * Token.t (* ":" *)) list (* one or more *)
+  | `Rep1_simple_id_int_lit_rep_DOT_int_lit of (
+        bound_identifier list (* one or more *)
+      * integer_literal (*tok*)
+      * (Token.t (* "." *) * integer_literal (*tok*)) list (* zero or more *)
+    )
+]
 
 and anon_choice_equal_sign_exp_74a2b17 = [
     `Equal_sign_exp of (eq_custom (*tok*) * expression)
@@ -555,84 +548,12 @@ and anon_choice_exp_764291a = [
     )
 ]
 
-and anon_choice_is_type_846e790 = [
-    `Is_type of (Token.t (* "is" *) * type_)
-  | `Bind_pat_as_type of (binding_pattern * as_custom (*tok*) * type_)
-]
-
-and anon_choice_is_type_9ebb9fc = [
-    `Is_type of (Token.t (* "is" *) * type_)
-  | `Non_bind_pat_as_type of (
-        property_binding_pattern * as_custom (*tok*) * type_
-    )
-]
-
-and anon_choice_simple_id_COLON_bind_pat_ff3f05b = [
-    `Simple_id_COLON_bind_pat of (
-        simple_identifier * Token.t (* ":" *) * binding_pattern
-    )
-  | `Bind_pat of binding_pattern
-]
-
-and anon_choice_simple_id_COLON_exp_9957b83 = [
-    `Simple_id_COLON_exp of (
-        simple_identifier * Token.t (* ":" *) * expression
-    )
-  | `Exp of expression
-  | `Rep1_simple_id_COLON of
-      (simple_identifier * Token.t (* ":" *)) list (* one or more *)
-  | `Rep1_simple_id_int_lit_rep_DOT_int_lit of (
-        simple_identifier list (* one or more *)
-      * integer_literal (*tok*)
-      * (Token.t (* "." *) * integer_literal (*tok*)) list (* zero or more *)
-    )
-]
-
-and anon_choice_simple_id_COLON_non_bind_pat_with_expr_64db5e0 = [
-    `Simple_id_COLON_non_bind_pat_with_expr of (
-        simple_identifier * Token.t (* ":" *) * non_binding_pattern_with_expr
-    )
-  | `Non_bind_pat_with_expr of non_binding_pattern_with_expr
-]
-
-and anon_choice_simple_id_COLON_prop_bind_pat_37a24c0 = [
-    `Simple_id_COLON_non_bind_pat of (
-        simple_identifier * Token.t (* ":" *) * property_binding_pattern
-    )
-  | `Non_bind_pat of property_binding_pattern
-]
-
-and anon_choice_simple_id_COLON_switch_pat_19a0585 = [
-    `Simple_id_COLON_bind_pat_with_expr of (
-        simple_identifier * Token.t (* ":" *) * switch_pattern
-    )
-  | `Bind_pat_with_expr of switch_pattern
-]
-
-and anon_opt_user_type_dot_simple_id_opt_LPAR_choice_simple_id_COLON_non_bind_pat_with_expr_rep_COMMA_choice_simple_id_COLON_non_bind_pat_with_expr_RPAR_opt_quest_opt_quest_4e01656 = (
-    user_type option
-  * dot_custom (*tok*)
-  * simple_identifier
-  * anon_LPAR_choice_simple_id_COLON_non_bind_pat_with_expr_rep_COMMA_choice_simple_id_COLON_non_bind_pat_with_expr_RPAR_opt_quest_89a265e
-      option
-  * Token.t (* "?" *) option
-)
-
-and anon_opt_user_type_dot_simple_id_opt_LPAR_choice_simple_id_COLON_switch_pat_rep_COMMA_choice_simple_id_COLON_switch_pat_RPAR_opt_quest_opt_quest_73dadbe = (
-    user_type option
-  * dot_custom (*tok*)
-  * simple_identifier
-  * anon_LPAR_choice_simple_id_COLON_switch_pat_rep_COMMA_choice_simple_id_COLON_switch_pat_RPAR_opt_quest_ea305cb
-      option
-  * Token.t (* "?" *) option
-)
-
 and array_type = (Token.t (* "[" *) * type_ * Token.t (* "]" *))
 
 and associatedtype_declaration = (
     modifiers option
   * Token.t (* "associatedtype" *)
-  * simple_identifier
+  * bound_identifier
   * (Token.t (* ":" *) * type_) option
   * type_constraints option
   * (eq_custom (*tok*) * type_) option
@@ -644,8 +565,8 @@ and attribute = [
     * user_type
     * (
           Token.t (* "(" *)
-        * anon_choice_simple_id_COLON_exp_9957b83
-        * (Token.t (* "," *) * anon_choice_simple_id_COLON_exp_9957b83)
+        * anon_choice_bound_id_COLON_exp_9957b83
+        * (Token.t (* "," *) * anon_choice_bound_id_COLON_exp_9957b83)
             list (* zero or more *)
         * Token.t (* ")" *)
       )
@@ -685,33 +606,29 @@ and binary_expression = [
   | `Bitw_oper of (expression * bitwise_binary_operator * expression)
 ]
 
+and binding_kind_and_pattern = (
+    possibly_async_binding_pattern_kind * no_expr_pattern_already_bound
+)
+
 and binding_pattern = (
+    Token.t (* "case" *) option
+  * binding_pattern_kind
+  * no_expr_pattern_already_bound
+)
+
+and binding_pattern_no_expr = (
     [
-        `Wild_pat of Token.t (* "_" *)
-      | `LPAR_choice_simple_id_COLON_bind_pat_rep_COMMA_choice_simple_id_COLON_bind_pat_RPAR_opt_quest of
-          anon_LPAR_choice_simple_id_COLON_bind_pat_rep_COMMA_choice_simple_id_COLON_bind_pat_RPAR_opt_quest_b7197cf
-      | `Choice_is_type of anon_choice_is_type_846e790
-      | `Bind_pat_kind_non_bind_pat of (
-            binding_pattern_kind * property_binding_pattern
-        )
-      | `Opt_user_type_dot_simple_id_opt_LPAR_choice_simple_id_COLON_bind_pat_with_expr_rep_COMMA_choice_simple_id_COLON_bind_pat_with_expr_RPAR_opt_quest_opt_quest of
-          anon_opt_user_type_dot_simple_id_opt_LPAR_choice_simple_id_COLON_switch_pat_rep_COMMA_choice_simple_id_COLON_switch_pat_RPAR_opt_quest_opt_quest_73dadbe
-      | `Simple_id of simple_identifier
+        `Univ_allo_pat of universally_allowed_pattern
+      | `Bind_pat of binding_pattern
+      | `Bound_id of bound_identifier
     ]
   * Token.t (* "?" *) option
 )
 
 and binding_pattern_with_expr = (
     [
-        `Wild_pat of Token.t (* "_" *)
-      | `LPAR_choice_simple_id_COLON_bind_pat_with_expr_rep_COMMA_choice_simple_id_COLON_bind_pat_with_expr_RPAR_opt_quest of
-          anon_LPAR_choice_simple_id_COLON_switch_pat_rep_COMMA_choice_simple_id_COLON_switch_pat_RPAR_opt_quest_ea305cb
-      | `Choice_is_type of anon_choice_is_type_846e790
-      | `Bind_pat_kind_non_bind_pat of (
-            binding_pattern_kind * property_binding_pattern
-        )
-      | `Opt_user_type_dot_simple_id_opt_LPAR_choice_simple_id_COLON_bind_pat_with_expr_rep_COMMA_choice_simple_id_COLON_bind_pat_with_expr_RPAR_opt_quest_opt_quest of
-          anon_opt_user_type_dot_simple_id_opt_LPAR_choice_simple_id_COLON_switch_pat_rep_COMMA_choice_simple_id_COLON_switch_pat_RPAR_opt_quest_opt_quest_73dadbe
+        `Univ_allo_pat of universally_allowed_pattern
+      | `Bind_pat of binding_pattern
       | `Exp of expression
     ]
   * Token.t (* "?" *) option
@@ -731,7 +648,7 @@ and call_suffix = [
     `Value_args of expr_hack_at_ternary_binary_call_suffix
   | `Lambda_lit_rep_simple_id_COLON_lambda_lit of (
         lambda_literal
-      * (simple_identifier * Token.t (* ":" *) * lambda_literal)
+      * (bound_identifier * Token.t (* ":" *) * lambda_literal)
           list (* zero or more *)
     )
 ]
@@ -748,14 +665,14 @@ and capture_list_item = [
     `Self_exp of Token.t (* "self" *)
   | `Opt_owne_modi_simple_id_opt_equal_sign_exp of (
         ownership_modifier option
-      * simple_identifier
+      * bound_identifier
       * (eq_custom (*tok*) * expression) option
     )
 ]
 
 and catch_block = (
     catch_keyword (*tok*)
-  * binding_pattern option
+  * binding_pattern_no_expr option
   * where_clause option
   * function_body
 )
@@ -804,7 +721,7 @@ and computed_property = (
 and computed_setter = (
     attribute list (* zero or more *)
   * setter_specifier
-  * (Token.t (* "(" *) * simple_identifier * Token.t (* ")" *)) option
+  * (Token.t (* "(" *) * bound_identifier * Token.t (* ")" *)) option
   * function_body option
 )
 
@@ -841,14 +758,16 @@ and dictionary_type = (
 
 and direct_or_indirect_binding = (
     [
-        `Value_bind_pat of value_binding_pattern
-      | `Case_bind_pat of (Token.t (* "case" *) * binding_pattern)
+        `Bind_kind_and_pat of binding_kind_and_pattern
+      | `Case_bind_pat_no_expr of (
+            Token.t (* "case" *) * binding_pattern_no_expr
+        )
     ]
   * type_annotation option
 )
 
 and directly_assignable_expression = [
-    `Simple_id of simple_identifier
+    `Simple_id of bound_identifier
   | `Navi_exp of navigation_expression
   | `Call_exp of call_expression
   | `Tuple_exp of tuple_expression
@@ -877,9 +796,9 @@ and enum_entry = (
     modifiers option
   * Token.t (* "indirect" *) option
   * Token.t (* "case" *)
-  * simple_identifier
+  * bound_identifier
   * enum_entry_suffix option
-  * (Token.t (* "," *) * simple_identifier * enum_entry_suffix option)
+  * (Token.t (* "," *) * bound_identifier * enum_entry_suffix option)
       list (* zero or more *)
   * Token.t (* ";" *) option
 )
@@ -908,7 +827,7 @@ and enum_entry_suffix = [
 and expr_hack_at_ternary_binary_call_suffix = value_arguments
 
 and expression = [
-    `Simple_id of simple_identifier
+    `Simple_id of bound_identifier
   | `Un_exp of unary_expression
   | `Bin_exp of binary_expression
   | `Tern_exp of ternary_expression
@@ -924,28 +843,7 @@ and for_statement = (
     Token.t (* "for" *)
   * try_operator option
   * Token.t (* "await" *) option
-  * [
-        `Wild_pat of Token.t (* "_" *)
-      | `LPAR_choice_simple_id_COLON_bind_pat_rep_COMMA_choice_simple_id_COLON_bind_pat_RPAR_opt_quest of
-          anon_LPAR_choice_simple_id_COLON_bind_pat_rep_COMMA_choice_simple_id_COLON_bind_pat_RPAR_opt_quest_b7197cf
-      | `Choice_is_type of anon_choice_is_type_846e790
-      | `Opt_case_bind_pat_kind_non_bind_pat of (
-            Token.t (* "case" *) option
-          * binding_pattern_kind
-          * property_binding_pattern
-        )
-      | `Case_opt_user_type_dot_simple_id_opt_LPAR_choice_simple_id_COLON_bind_pat_with_expr_rep_COMMA_choice_simple_id_COLON_bind_pat_with_expr_RPAR_opt_quest_opt_quest of (
-            Token.t (* "case" *)
-          * user_type option
-          * dot_custom (*tok*)
-          * simple_identifier
-          * anon_LPAR_choice_simple_id_COLON_switch_pat_rep_COMMA_choice_simple_id_COLON_switch_pat_RPAR_opt_quest_ea305cb
-              option
-          * Token.t (* "?" *) option
-        )
-      | `Simple_id of simple_identifier
-    ]
-  * Token.t (* "?" *) option
+  * binding_pattern_no_expr
   * type_annotation option
   * Token.t (* "in" *)
   * expression
@@ -1044,7 +942,7 @@ and interpolation_contents = (
 
 and key_path_component = [
     `Simple_id_rep_key_path_postfs of (
-        simple_identifier
+        bound_identifier
       * key_path_postfixes list (* zero or more *)
     )
   | `Rep1_key_path_postfs of key_path_postfixes list (* one or more *)
@@ -1106,10 +1004,10 @@ and lambda_parameter = (
     attribute option
   * [
         `Self_exp of Token.t (* "self" *)
-      | `Simple_id of simple_identifier
+      | `Simple_id of bound_identifier
       | `Opt_simple_id_simple_id_COLON_opt_param_modifs_poss_impl_unwr_type of (
-            simple_identifier option
-          * simple_identifier
+            bound_identifier option
+          * bound_identifier
           * Token.t (* ":" *)
           * parameter_modifiers option
           * possibly_implicitly_unwrapped_type
@@ -1153,7 +1051,7 @@ and modifierless_class_declaration = [
             `Class of Token.t (* "class" *)
           | `Struct of Token.t (* "struct" *)
         ]
-      * simple_identifier
+      * bound_identifier
       * type_parameters option
       * (Token.t (* ":" *) * inheritance_specifiers) option
       * type_constraints option
@@ -1170,7 +1068,7 @@ and modifierless_class_declaration = [
   | `Opt_indi_enum_simple_id_opt_type_params_opt_COLON_inhe_specis_opt_type_consts_enum_class_body of (
         Token.t (* "indirect" *) option
       * Token.t (* "enum" *)
-      * simple_identifier
+      * bound_identifier
       * type_parameters option
       * (Token.t (* ":" *) * inheritance_specifiers) option
       * type_constraints option
@@ -1197,20 +1095,14 @@ and modifierless_function_declaration_no_body = (
 )
 
 and modifierless_property_declaration = (
-    [
-        `Opt_async_modi_let of (
-            async_modifier (*tok*) option
-          * Token.t (* "let" *)
-        )
-      | `Var of Token.t (* "var" *)
-    ]
-  * property_binding_pattern
+    possibly_async_binding_pattern_kind
+  * no_expr_pattern_already_bound
   * type_annotation option
   * type_constraints option
   * anon_choice_equal_sign_exp_74a2b17 option
   * (
         Token.t (* "," *)
-      * property_binding_pattern
+      * no_expr_pattern_already_bound
       * type_annotation option
       * type_constraints option
       * anon_choice_equal_sign_exp_74a2b17 option
@@ -1220,7 +1112,7 @@ and modifierless_property_declaration = (
 
 and modifierless_typealias_declaration = (
     Token.t (* "typealias" *)
-  * simple_identifier
+  * bound_identifier
   * type_parameters option
   * eq_custom (*tok*)
   * type_
@@ -1244,44 +1136,17 @@ and navigation_expression = (
   * navigation_suffix
 )
 
-and non_binding_pattern = (
+and no_expr_pattern_already_bound = (
     [
-        `Wild_pat of Token.t (* "_" *)
-      | `LPAR_choice_simple_id_COLON_non_bind_pat_rep_COMMA_choice_simple_id_COLON_non_bind_pat_RPAR_opt_quest of (
-            Token.t (* "(" *)
-          * anon_choice_simple_id_COLON_prop_bind_pat_37a24c0
-          * (
-                Token.t (* "," *)
-              * anon_choice_simple_id_COLON_prop_bind_pat_37a24c0
-            )
-              list (* zero or more *)
-          * Token.t (* ")" *)
-          * Token.t (* "?" *) option
-        )
-      | `Choice_is_type of anon_choice_is_type_9ebb9fc
-      | `Opt_user_type_dot_simple_id_opt_LPAR_choice_simple_id_COLON_non_bind_pat_with_expr_rep_COMMA_choice_simple_id_COLON_non_bind_pat_with_expr_RPAR_opt_quest_opt_quest of
-          anon_opt_user_type_dot_simple_id_opt_LPAR_choice_simple_id_COLON_non_bind_pat_with_expr_rep_COMMA_choice_simple_id_COLON_non_bind_pat_with_expr_RPAR_opt_quest_opt_quest_4e01656
-      | `Simple_id of simple_identifier
-    ]
-  * Token.t (* "?" *) option
-)
-
-and non_binding_pattern_with_expr = (
-    [
-        `Wild_pat of Token.t (* "_" *)
-      | `LPAR_choice_simple_id_COLON_non_bind_pat_with_expr_rep_COMMA_choice_simple_id_COLON_non_bind_pat_with_expr_RPAR_opt_quest of
-          anon_LPAR_choice_simple_id_COLON_non_bind_pat_with_expr_rep_COMMA_choice_simple_id_COLON_non_bind_pat_with_expr_RPAR_opt_quest_89a265e
-      | `Choice_is_type of anon_choice_is_type_9ebb9fc
-      | `Opt_user_type_dot_simple_id_opt_LPAR_choice_simple_id_COLON_non_bind_pat_with_expr_rep_COMMA_choice_simple_id_COLON_non_bind_pat_with_expr_RPAR_opt_quest_opt_quest of
-          anon_opt_user_type_dot_simple_id_opt_LPAR_choice_simple_id_COLON_non_bind_pat_with_expr_rep_COMMA_choice_simple_id_COLON_non_bind_pat_with_expr_RPAR_opt_quest_opt_quest_4e01656
-      | `Exp of expression
+        `Univ_allo_pat of universally_allowed_pattern
+      | `Bound_id of bound_identifier
     ]
   * Token.t (* "?" *) option
 )
 
 and parameter = (
-    simple_identifier option
-  * simple_identifier
+    bound_identifier option
+  * bound_identifier
   * Token.t (* ":" *)
   * parameter_modifiers option
   * possibly_implicitly_unwrapped_type
@@ -1302,11 +1167,11 @@ and primary_expression = [
           | `HASH_71f9c0e of Token.t (* "#imageLiteral" *)
         ]
       * Token.t (* "(" *)
-      * simple_identifier
+      * bound_identifier
       * Token.t (* ":" *)
       * expression
       * (
-            Token.t (* "," *) * simple_identifier * Token.t (* ":" *)
+            Token.t (* "," *) * bound_identifier * Token.t (* ":" *)
           * expression
         )
           list (* zero or more *)
@@ -1372,8 +1237,6 @@ and primary_expression = [
   | `Three_dot_op of three_dot_operator_custom (*tok*)
 ]
 
-and property_binding_pattern = non_binding_pattern
-
 and property_declaration = (
     modifiers option
   * modifierless_property_declaration
@@ -1388,7 +1251,7 @@ and protocol_body = (
 and protocol_declaration = (
     modifiers option
   * Token.t (* "protocol" *)
-  * simple_identifier
+  * bound_identifier
   * type_parameters option
   * (Token.t (* ":" *) * inheritance_specifiers) option
   * type_constraints option
@@ -1403,7 +1266,7 @@ and protocol_member_declaration = [
   | `Deinit_decl of deinit_declaration
   | `Prot_prop_decl of (
         modifiers option
-      * value_binding_pattern
+      * binding_kind_and_pattern
       * type_annotation option
       * type_constraints option
       * protocol_property_requirements
@@ -1435,7 +1298,7 @@ and repeat_while_statement = (
 )
 
 and simple_user_type = [
-  `Rectype of (simple_identifier * type_arguments option)
+  `Rectype of (bound_identifier * type_arguments option)
 ]
 
 and statements = (
@@ -1520,16 +1383,30 @@ and throw_statement = (Token.t (* "throw" *) * expression)
 
 and tuple_expression = (
     Token.t (* "(" *)
-  * (simple_identifier * Token.t (* ":" *)) option
+  * (bound_identifier * Token.t (* ":" *)) option
   * expression
   * (
         Token.t (* "," *)
-      * (simple_identifier * Token.t (* ":" *)) option
+      * (bound_identifier * Token.t (* ":" *)) option
       * expression
     )
       list (* zero or more *)
   * Token.t (* ")" *)
 )
+
+and tuple_pattern = (
+    Token.t (* "(" *)
+  * tuple_pattern_item
+  * (Token.t (* "," *) * tuple_pattern_item) list (* zero or more *)
+  * Token.t (* ")" *)
+)
+
+and tuple_pattern_item = [
+    `Simple_id_COLON_bind_pat_with_expr of (
+        bound_identifier * Token.t (* ":" *) * switch_pattern
+    )
+  | `Bind_pat_with_expr of switch_pattern
+]
 
 and tuple_type = (
     Token.t (* "(" *)
@@ -1560,6 +1437,13 @@ and type_arguments = [
     * (Token.t (* "," *) * type_) list (* zero or more *)
     * Token.t (* ">" *)
   )
+]
+
+and type_casting_pattern = [
+    `Is_type of (Token.t (* "is" *) * type_)
+  | `Bind_pat_no_expr_as_type of (
+        binding_pattern_no_expr * as_custom (*tok*) * type_
+    )
 ]
 
 and type_constraint = [
@@ -1601,7 +1485,7 @@ and type_modifiers = [ `Rectype of type_parameter_modifiers ]
 
 and type_parameter = (
     type_parameter_modifiers option
-  * simple_identifier
+  * bound_identifier
   * (Token.t (* ":" *) * type_) option
 )
 
@@ -1675,6 +1559,19 @@ and unary_expression = [
   | `Open_end_range_exp of (expression * three_dot_operator_custom (*tok*))
 ]
 
+and universally_allowed_pattern = [
+    `Wild_pat of Token.t (* "_" *)
+  | `Tuple_pat of tuple_pattern
+  | `Type_cast_pat of type_casting_pattern
+  | `Case_pat of (
+        Token.t (* "case" *) option
+      * user_type option
+      * dot_custom (*tok*)
+      * bound_identifier
+      * tuple_pattern option
+    )
+]
+
 and user_type = [
   `Rectype of (
       simple_user_type
@@ -1686,11 +1583,11 @@ and value_argument = (
     type_modifiers option
   * [
         `Rep1_simple_id_COLON of
-          (simple_identifier * Token.t (* ":" *)) list (* one or more *)
+          (bound_identifier * Token.t (* ":" *)) list (* one or more *)
       | `Opt_choice_simple_id_COLON_exp of (
             (
                 [
-                    `Simple_id of simple_identifier
+                    `Simple_id of bound_identifier
                   | `Async of Token.t (* "async" *)
                 ]
               * Token.t (* ":" *)
@@ -1708,15 +1605,6 @@ and value_arguments = [
         Token.t (* "[" *)
       * interpolation_contents option
       * Token.t (* "]" *)
-    )
-]
-
-and value_binding_pattern = [
-    `Var_non_bind_pat of (Token.t (* "var" *) * property_binding_pattern)
-  | `Opt_async_modi_let_non_bind_pat of (
-        async_modifier (*tok*) option
-      * Token.t (* "let" *)
-      * property_binding_pattern
     )
 ]
 
@@ -1764,13 +1652,24 @@ type source_file = (
 )
 [@@deriving sexp_of]
 
-type wildcard_pattern (* inlined *) = Token.t (* "_" *)
+type await_operator (* inlined *) = Token.t (* "await" *)
+[@@deriving sexp_of]
+
+type use_site_target (* inlined *) = (
+    [
+        `Prop of Token.t (* "property" *)
+      | `Get of Token.t (* "get" *)
+      | `Set of Token.t (* "set" *)
+      | `Rece of Token.t (* "receiver" *)
+      | `Param of Token.t (* "param" *)
+      | `Setp of Token.t (* "setparam" *)
+      | `Dele of Token.t (* "delegate" *)
+    ]
+  * Token.t (* ":" *)
+)
 [@@deriving sexp_of]
 
 type self_expression (* inlined *) = Token.t (* "self" *)
-[@@deriving sexp_of]
-
-type throw_keyword (* inlined *) = Token.t (* "throw" *)
 [@@deriving sexp_of]
 
 type visibility_modifier (* inlined *) = (
@@ -1791,10 +1690,13 @@ type property_behavior_modifier (* inlined *) = Token.t (* "lazy" *)
 type is_operator (* inlined *) = Token.t (* "is" *)
 [@@deriving sexp_of]
 
-type await_operator (* inlined *) = Token.t (* "await" *)
+type multiline_comment (* inlined *) = Token.t
 [@@deriving sexp_of]
 
-type multiline_comment (* inlined *) = Token.t
+type super_expression (* inlined *) = Token.t (* "super" *)
+[@@deriving sexp_of]
+
+type wildcard_pattern (* inlined *) = Token.t (* "_" *)
 [@@deriving sexp_of]
 
 type comment (* inlined *) = Token.t
@@ -1803,27 +1705,13 @@ type comment (* inlined *) = Token.t
 type diagnostic (* inlined *) = Token.t
 [@@deriving sexp_of]
 
-type use_site_target (* inlined *) = (
-    [
-        `Prop of Token.t (* "property" *)
-      | `Get of Token.t (* "get" *)
-      | `Set of Token.t (* "set" *)
-      | `Rece of Token.t (* "receiver" *)
-      | `Param of Token.t (* "param" *)
-      | `Setp of Token.t (* "setparam" *)
-      | `Dele of Token.t (* "delegate" *)
-    ]
-  * Token.t (* ":" *)
-)
-[@@deriving sexp_of]
-
 type immediate_quest (* inlined *) = Token.t (* "?" *)
 [@@deriving sexp_of]
 
-type quest (* inlined *) = Token.t (* "?" *)
+type throw_keyword (* inlined *) = Token.t (* "throw" *)
 [@@deriving sexp_of]
 
-type super_expression (* inlined *) = Token.t (* "super" *)
+type quest (* inlined *) = Token.t (* "?" *)
 [@@deriving sexp_of]
 
 type directive (* inlined *) = Token.t
@@ -1835,7 +1723,7 @@ type arrow_operator (* inlined *) = arrow_operator_custom (*tok*)
 type conjunction_operator (* inlined *) = conjunction_operator_custom (*tok*)
 [@@deriving sexp_of]
 
-type async_keyword_internal (* inlined *) = async_keyword_custom (*tok*)
+type async_keyword (* inlined *) = async_keyword_custom (*tok*)
 [@@deriving sexp_of]
 
 type as_ (* inlined *) = as_custom (*tok*)
@@ -1845,13 +1733,15 @@ type open_ended_range_operator (* inlined *) =
   open_ended_range_operator_custom (*tok*)
 [@@deriving sexp_of]
 
-type as_quest (* inlined *) = as_quest_custom (*tok*)
-[@@deriving sexp_of]
-
 type class_member_separator (* inlined *) = semi (*tok*)
 [@@deriving sexp_of]
 
-type three_dot_operator (* inlined *) = three_dot_operator_custom (*tok*)
+type as_quest (* inlined *) = as_quest_custom (*tok*)
+[@@deriving sexp_of]
+
+type uni_character_literal (* inlined *) = (
+    Token.t (* "\\" *) * Token.t (* "u" *) * pat_888b548 (*tok*)
+)
 [@@deriving sexp_of]
 
 type nil_coalescing_operator (* inlined *) =
@@ -1861,15 +1751,13 @@ type nil_coalescing_operator (* inlined *) =
 type disjunction_operator (* inlined *) = disjunction_operator_custom (*tok*)
 [@@deriving sexp_of]
 
+type three_dot_operator (* inlined *) = three_dot_operator_custom (*tok*)
+[@@deriving sexp_of]
+
 type equal_sign (* inlined *) = eq_custom (*tok*)
 [@@deriving sexp_of]
 
 type dot (* inlined *) = dot_custom (*tok*)
-[@@deriving sexp_of]
-
-type uni_character_literal (* inlined *) = (
-    Token.t (* "\\" *) * Token.t (* "u" *) * pat_888b548 (*tok*)
-)
 [@@deriving sexp_of]
 
 type as_bang (* inlined *) = as_bang_custom (*tok*)
@@ -1878,17 +1766,14 @@ type as_bang (* inlined *) = as_bang_custom (*tok*)
 type eq_eq (* inlined *) = eq_eq_custom (*tok*)
 [@@deriving sexp_of]
 
-type async_keyword (* inlined *) = async_keyword_custom (*tok*)
-[@@deriving sexp_of]
-
 type modifier (* inlined *) = [
     `Non_local_scope_modi of non_local_scope_modifier
   | `Loca_perm_modi of locally_permitted_modifier
 ]
 [@@deriving sexp_of]
 
-type anon_rep1_simple_id_int_lit_rep_DOT_int_lit_aa3d851 (* inlined *) = (
-    simple_identifier list (* one or more *)
+type anon_rep1_bound_id_int_lit_rep_DOT_int_lit_bb9c01b (* inlined *) = (
+    bound_identifier list (* one or more *)
   * integer_literal (*tok*)
   * (Token.t (* "." *) * integer_literal (*tok*)) list (* zero or more *)
 )
@@ -1937,6 +1822,15 @@ type await_expression (* inlined *) = (
 
 type bitwise_operation (* inlined *) = (
     expression * bitwise_binary_operator * expression
+)
+[@@deriving sexp_of]
+
+type case_pattern (* inlined *) = (
+    Token.t (* "case" *) option
+  * user_type option
+  * dot_custom (*tok*)
+  * bound_identifier
+  * tuple_pattern option
 )
 [@@deriving sexp_of]
 
@@ -2150,10 +2044,10 @@ type playground_literal (* inlined *) = (
       | `HASH_71f9c0e of Token.t (* "#imageLiteral" *)
     ]
   * Token.t (* "(" *)
-  * simple_identifier
+  * bound_identifier
   * Token.t (* ":" *)
   * expression
-  * (Token.t (* "," *) * simple_identifier * Token.t (* ":" *) * expression)
+  * (Token.t (* "," *) * bound_identifier * Token.t (* ":" *) * expression)
       list (* zero or more *)
   * Token.t (* ")" *)
 )
@@ -2173,7 +2067,7 @@ type protocol_composition_type (* inlined *) = (
 
 type protocol_property_declaration (* inlined *) = (
     modifiers option
-  * value_binding_pattern
+  * binding_kind_and_pattern
   * type_annotation option
   * type_constraints option
   * protocol_property_requirements
@@ -2214,6 +2108,12 @@ type try_expression (* inlined *) = (
       | `Call_exp of call_expression
       | `Tern_exp of ternary_expression
     ]
+)
+[@@deriving sexp_of]
+
+type non_binding_pattern_with_expr (* inlined *) = (
+    [ `Univ_allo_pat of universally_allowed_pattern | `Exp of expression ]
+  * Token.t (* "?" *) option
 )
 [@@deriving sexp_of]
 
