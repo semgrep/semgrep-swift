@@ -1,6 +1,6 @@
 File: semgrep-grammars/src/tree-sitter-swift/LICENSE
 Git repo name: tree-sitter-swift
-Latest commit in repo: 823de4f7e296789b264c83602e14e4a6e76f2da5
+Latest commit in repo: 636c9769770a0f2effb92090e8c98e92e58181d1
 Last change in file:
   commit 90cd9604a7db32fbec45a040a7bdb6aaa89b565c
   gpg: Signature made Sat 14 Aug 2021 09:10:20 AM PDT
@@ -13,41 +13,31 @@ Last change in file:
 ---
 File: semgrep-grammars/src/tree-sitter-swift/grammar.js
 Git repo name: tree-sitter-swift
-Latest commit in repo: 823de4f7e296789b264c83602e14e4a6e76f2da5
+Latest commit in repo: 636c9769770a0f2effb92090e8c98e92e58181d1
 Last change in file:
-  commit 823de4f7e296789b264c83602e14e4a6e76f2da5
-  gpg: Signature made Tue 10 May 2022 07:55:03 PM PDT
-  gpg:                using RSA key 4AEE18F83AFDEB23
-  gpg: Good signature from "GitHub (web-flow commit signing) <noreply@github.com>" [full]
-  Merge: 3bb2520 b880690
-  Author: Alex Pinkus <62194897+alex-pinkus@users.noreply.github.com>
-  Date:   Tue May 10 19:55:03 2022 -0700
+  commit 636c9769770a0f2effb92090e8c98e92e58181d1
+  Author: Nat Mote <nat@r2c.dev>
+  Date:   Tue May 17 15:07:02 2022 -0700
   
-      Merge pull request #183 from nmote/dedup3
-      
-      Split expr hack suffix into its own rule
+      Increase dynamic precedence of call
 ---
 File: semgrep-grammars/src/semgrep-swift/grammar.js
 Git repo name: ocaml-tree-sitter-semgrep
-Latest commit in repo: e495b9d92a9af33748f255b2644bd497c877c6cf
+Latest commit in repo: 17f14c9e0c11370a4e7cd68f2a699e275a4f4a60
 Last change in file:
-  commit 4970334dd35b20d443f2ee6b5d7936e972bd6112
-  gpg: Signature made Tue 10 May 2022 04:28:01 PM PDT
+  commit 26fd5274261c52adb9faf69032bb5dc75f4619b9
+  gpg: Signature made Tue 17 May 2022 02:26:32 PM PDT
   gpg:                using RSA key C1930C5F9C9E0472DCF9ECC97D71116F505E5145
   gpg: Good signature from "Nathaniel Mote <nat@r2c.dev>" [ultimate]
   gpg:                 aka "Nathaniel Mote <nat@natmote.net>" [ultimate]
   Author: Nat Mote <nat@r2c.dev>
-  Date:   Tue May 10 11:04:04 2022 -0700
+  Date:   Mon May 16 17:24:27 2022 -0700
   
-      feat(swift): Parse semgrep_ellipsis
+      feat(swift): Parse ellipsis in all positions needed for experimental
       
-      This introduces a `semgrep_ellipsis` rule that is a valid expression. It
-      conflicts with the existing unbounded range operator. This conflict is
-      resolved as described in the comment.
+      I also added the deep ellipsis here.
       
       Test plan:
       
-      Existing tests ensure that unbounded ranges are parsed as they used to
-      be. The added tests make that clear, and also demonstrate a case where
-      an ellipsis is now parsed. That example used to be a parse error.
+      Automated tests
 ---
