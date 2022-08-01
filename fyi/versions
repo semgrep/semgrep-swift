@@ -2,14 +2,11 @@ File: semgrep-grammars/src/tree-sitter-swift/LICENSE
 Git repo name: tree-sitter-swift
 Latest commit in repo: 636c9769770a0f2effb92090e8c98e92e58181d1
 Last change in file:
-  commit 90cd9604a7db32fbec45a040a7bdb6aaa89b565c
-  gpg: Signature made Sat 14 Aug 2021 09:10:20 AM PDT
-  gpg:                using RSA key 4AEE18F83AFDEB23
-  gpg: Good signature from "GitHub (web-flow commit signing) <noreply@github.com>" [full]
-  Author: alex-pinkus <62194897+alex-pinkus@users.noreply.github.com>
-  Date:   Sat Aug 14 09:10:20 2021 -0700
+  commit 636c9769770a0f2effb92090e8c98e92e58181d1
+  Author: Nat Mote <nat@r2c.dev>
+  Date:   Tue May 17 15:07:02 2022 -0700
   
-      Initial commit
+      Increase dynamic precedence of call
 ---
 File: semgrep-grammars/src/tree-sitter-swift/grammar.js
 Git repo name: tree-sitter-swift
@@ -23,21 +20,11 @@ Last change in file:
 ---
 File: semgrep-grammars/src/semgrep-swift/grammar.js
 Git repo name: ocaml-tree-sitter-semgrep
-Latest commit in repo: 17f14c9e0c11370a4e7cd68f2a699e275a4f4a60
+Latest commit in repo: 46d58088f9578515631c1411a07b55e58a248eb7
 Last change in file:
-  commit 26fd5274261c52adb9faf69032bb5dc75f4619b9
-  gpg: Signature made Tue 17 May 2022 02:26:32 PM PDT
-  gpg:                using RSA key C1930C5F9C9E0472DCF9ECC97D71116F505E5145
-  gpg: Good signature from "Nathaniel Mote <nat@r2c.dev>" [ultimate]
-  gpg:                 aka "Nathaniel Mote <nat@natmote.net>" [ultimate]
-  Author: Nat Mote <nat@r2c.dev>
-  Date:   Mon May 16 17:24:27 2022 -0700
+  commit 146d9f7bffc3b2713f60e0b1d93615f92191a35b
+  Author: Brandon Wu <brandonspark@Brandons-MacBook-Air.local>
+  Date:   Thu Jul 28 14:37:37 2022 -0700
   
-      feat(swift): Parse ellipsis in all positions needed for experimental
-      
-      I also added the deep ellipsis here.
-      
-      Test plan:
-      
-      Automated tests
+      fixed
 ---
