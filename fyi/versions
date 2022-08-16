@@ -2,11 +2,14 @@ File: semgrep-grammars/src/tree-sitter-swift/LICENSE
 Git repo name: tree-sitter-swift
 Latest commit in repo: 636c9769770a0f2effb92090e8c98e92e58181d1
 Last change in file:
-  commit 636c9769770a0f2effb92090e8c98e92e58181d1
-  Author: Nat Mote <nat@r2c.dev>
-  Date:   Tue May 17 15:07:02 2022 -0700
+  commit 90cd9604a7db32fbec45a040a7bdb6aaa89b565c
+  gpg: Signature made Sat 14 Aug 2021 09:10:20 AM PDT
+  gpg:                using RSA key 4AEE18F83AFDEB23
+  gpg: Good signature from "GitHub (web-flow commit signing) <noreply@github.com>" [full]
+  Author: alex-pinkus <62194897+alex-pinkus@users.noreply.github.com>
+  Date:   Sat Aug 14 09:10:20 2021 -0700
   
-      Increase dynamic precedence of call
+      Initial commit
 ---
 File: semgrep-grammars/src/tree-sitter-swift/grammar.js
 Git repo name: tree-sitter-swift
@@ -20,11 +23,15 @@ Last change in file:
 ---
 File: semgrep-grammars/src/semgrep-swift/grammar.js
 Git repo name: ocaml-tree-sitter-semgrep
-Latest commit in repo: 46d58088f9578515631c1411a07b55e58a248eb7
+Latest commit in repo: 63aba50f09a52989c4e88905188766ee50d208df
 Last change in file:
-  commit 146d9f7bffc3b2713f60e0b1d93615f92191a35b
-  Author: Brandon Wu <brandonspark@Brandons-MacBook-Air.local>
-  Date:   Thu Jul 28 14:37:37 2022 -0700
+  commit 55d66d6692719c7c2ee29cdb098fea748088730f
+  gpg: Signature made Mon 15 Aug 2022 10:47:17 AM PDT
+  gpg:                using RSA key C1930C5F9C9E0472DCF9ECC97D71116F505E5145
+  gpg: Good signature from "Nathaniel Mote <nat@r2c.dev>" [ultimate]
+  gpg:                 aka "Nathaniel Mote <nat@natmote.net>" [ultimate]
+  Author: Nat Mote <nat@r2c.dev>
+  Date:   Wed Aug 10 08:49:40 2022 -0700
   
-      fixed
+      Remove Swift class member separator hack
 ---
