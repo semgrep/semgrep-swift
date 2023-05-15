@@ -2,104 +2,31 @@ File: semgrep-grammars/src/tree-sitter-swift/LICENSE
 Git repo name: tree-sitter-swift
 Latest commit in repo: 500f49c2e9a4424df510faaaafcf5e80f2b9e721
 Last change in file:
-  commit 90cd9604a7db32fbec45a040a7bdb6aaa89b565c
-  gpg: Signature made Sat 14 Aug 2021 09:10:20 AM PDT
-  gpg:                using RSA key 4AEE18F83AFDEB23
-  gpg: Good signature from "GitHub (web-flow commit signing) <noreply@github.com>" [full]
-  Author: alex-pinkus <62194897+alex-pinkus@users.noreply.github.com>
-  Date:   Sat Aug 14 09:10:20 2021 -0700
+  commit 500f49c2e9a4424df510faaaafcf5e80f2b9e721
+  Author: Alex Pinkus <alex.pinkus@gmail.com>
+  Date:   Sun Sep 11 21:10:54 2022 -0700
   
-      Initial commit
+      0.3.3 release
 ---
 File: semgrep-grammars/src/tree-sitter-swift/grammar.js
 Git repo name: tree-sitter-swift
 Latest commit in repo: 500f49c2e9a4424df510faaaafcf5e80f2b9e721
 Last change in file:
-  commit f58deb71df91bcee6d650774dbd136a7493ca20f
+  commit 500f49c2e9a4424df510faaaafcf5e80f2b9e721
   Author: Alex Pinkus <alex.pinkus@gmail.com>
-  Date:   Thu Sep 8 20:51:55 2022 -0700
+  Date:   Sun Sep 11 21:10:54 2022 -0700
   
-      Don't use the external scanner for `...`
-      
-      We now have better invalidation of operators in the custom scanner than
-      we did when we added the various `.`-prefixed operators. This means we
-      can bail out quickly and avoid marking a token incorrectly.
-      
-      This simplifies downstream handling of `...`, which, in addition to
-      being a Swift operator, is also used by Semgrep.
-      
-      In order to make this happen, we do also have to be a bit more careful
-      with `mark_end`. If we're possibly going to emit a `_semi`, we have to
-      make sure not to `mark_end`, because we don't want that to be "part of"
-      the semi. This theoretically means that if we were chasing a longer
-      operator, but failed to find it, and had a shorter operator that was
-      `cross_semi`, it would get parsed incorrectly -- but this seems unlikely
-      since such a longer operator would be likely to match the
-      `custom_operator` pattern to begin with.
-      
-      Fixes #226
+      0.3.3 release
 ---
 File: semgrep-grammars/src/semgrep-swift/grammar.js
 Git repo name: ocaml-tree-sitter-semgrep
-Latest commit in repo: 657bf6e4a647a4aca6b6a198c3ca93b3a91d8db8
+Latest commit in repo: 1c36e0536921be8022249c22fe365ac3181d5a6b
 Last change in file:
-  commit 8f4e13ccb6d39b1b8187bb1866d0d0f89fdd02d3
-  gpg: Signature made Mon 12 Sep 2022 09:59:15 AM PDT
-  gpg:                using RSA key C1930C5F9C9E0472DCF9ECC97D71116F505E5145
-  gpg: Good signature from "Nathaniel Mote <nat@r2c.dev>" [ultimate]
-  gpg:                 aka "Nathaniel Mote <nat@natmote.net>" [ultimate]
+  commit 02917c7d689da67b4d2ee086b1a7b747fe366bc1
   Author: Nat Mote <nat@r2c.dev>
-  Date:   Tue Sep 6 17:04:05 2022 -0700
+  Date:   Wed Sep 21 17:51:50 2022 -0700
   
-      chore: Update tree-sitter-swift and work around custom operator issue
+      Add comment explaining Swift semgrep_deep_ellipsis rule
       
-      Notably, this pulls in:
-      * Using the external scanner to handle custom operators: https://github.com/alex-pinkus/tree-sitter-swift/commit/c17937810b59388e818ffb493a45fe424b85698c
-      * No longer using the external scanner to handle "...": https://github.com/alex-pinkus/tree-sitter-swift/commit/f58deb71df91bcee6d650774dbd136a7493ca20f
-      
-      # Custom operator change:
-      
-      Unfortunately, `...>` is a valid custom operator in Swift, and it can
-      occur as part of an expression. So, for the pattern `<... 5 ...>`, it
-      gets lexed as `<...`, followed by the expression `5`, followed by a
-      `custom_operator` token. This doesn't fit the deep ellipsis rule, so it
-      results in a parse error.
-      
-      A proper fix would be to extend the scanner so that `...>` is its own
-      token, and then handle it separately in the grammar. This would be
-      complicated, and would likely present significant maintainability
-      challenges because the way custom scanners are structured does not
-      invite extensibility. We would probably have to maintain a fork of the
-      scanner.
-      
-      Instead, I propose this hack. Unfortunately, it will prevent people from
-      writing patterns like `<... 5 .+. 1 ...>` because the custom operator in
-      the middle will get mistaken for the end of the deep ellipsis. However,
-      this can easily be worked around with parentheses, and it's probably
-      going to come up rarely, if ever.
-      
-      When incorporating this into Semgrep, I plan to check to ensure that the
-      text of the custom operator is `...>` and fail if not. This way, we
-      won't have backwards-compatibility issues if we do this better in the
-      future due to people inadvertently writing `..>` or the like.
-      
-      # "..." change:
-      
-      This change involved making a few tweaks to our grammar extensions, but
-      nothing really major. The big thing that this changes is that now the
-      following program is parsed as an identifier followed by, as a separate
-      statement, a fully open range:
-      
-      ```
-      foo
-      ...
-      ```
-      
-      When parsing a Semgrep pattern, we convert a fully open range into a
-      Semgrep ellipsis. So, when used as a pattern, this will mean "the
-      statement `foo` followed by any number of statements`, which aligns with
-      user expectations. Previously, it was parsed as a single expression
-      statement: an open-ended range.
-      
-      Test plan: Automated tests
+      As requested after #343 was merged.
 ---

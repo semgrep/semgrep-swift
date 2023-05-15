@@ -494,13 +494,19 @@ let children_regexps : (string * Run.exp option) list = [
   );
   "navigation_suffix",
   Some (
-    Seq [
-      Token (Name "dot");
-      Alt [|
-        Token (Name "simple_identifier");
-        Token (Name "integer_literal");
-      |];
-    ];
+    Alt [|
+      Seq [
+        Token (Name "dot");
+        Alt [|
+          Token (Name "simple_identifier");
+          Token (Name "integer_literal");
+        |];
+      ];
+      Seq [
+        Token (Name "dot");
+        Token (Name "semgrep_ellipsis");
+      ];
+    |];
   );
   "prefix_unary_operator",
   Some (
@@ -4252,17 +4258,34 @@ let trans_navigation_suffix ((kind, body) : mt) : CST.navigation_suffix =
   match body with
   | Children v ->
       (match v with
-      | Seq [v0; v1] ->
-          (
-            trans_dot (Run.matcher_token v0),
-            (match v1 with
-            | Alt (0, v) ->
-                `Simple_id (
-                  trans_simple_identifier (Run.matcher_token v)
+      | Alt (0, v) ->
+          `Dot_choice_simple_id (
+            (match v with
+            | Seq [v0; v1] ->
+                (
+                  trans_dot (Run.matcher_token v0),
+                  (match v1 with
+                  | Alt (0, v) ->
+                      `Simple_id (
+                        trans_simple_identifier (Run.matcher_token v)
+                      )
+                  | Alt (1, v) ->
+                      `Int_lit (
+                        trans_integer_literal (Run.matcher_token v)
+                      )
+                  | _ -> assert false
+                  )
                 )
-            | Alt (1, v) ->
-                `Int_lit (
-                  trans_integer_literal (Run.matcher_token v)
+            | _ -> assert false
+            )
+          )
+      | Alt (1, v) ->
+          `Dot_semg_ellips (
+            (match v with
+            | Seq [v0; v1] ->
+                (
+                  trans_dot (Run.matcher_token v0),
+                  trans_semgrep_ellipsis (Run.matcher_token v1)
                 )
             | _ -> assert false
             )
