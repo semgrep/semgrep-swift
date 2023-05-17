@@ -20,13 +20,13 @@ Last change in file:
 ---
 File: semgrep-grammars/src/semgrep-swift/grammar.js
 Git repo name: ocaml-tree-sitter-semgrep
-Latest commit in repo: cd0d38ba19773e80e75bdcd0608384ce398b6476
+Latest commit in repo: 228ddd8a764584d43a17e10a926acbdafef584cc
 Last change in file:
-  commit 9c491554b9e74ec704ec9ee06ce21938e7b89672
+  commit 32f3fd22446cab32d4a6a0a08f34a4f0b03abe0a
   Author: Heejong Lee <heejong@gmail.com>
-  Date:   Mon May 15 19:23:13 2023 -0700
+  Date:   Tue May 16 17:30:10 2023 -0700
   
-      swift: Support ellipsis in navigation suffix
+      swift: Support named ellipsis
       
-      returntocorp/semgrep#7664
+      returntocorp/semgrep#7666
 ---

@@ -10,15 +10,11 @@ open Tree_sitter_run
 
 type bang = Token.t
 
+type tok_pat_c201ddc = Token.t
+
 type real_literal = Token.t
 
 type raw_str_continuing_indicator = Token.t
-
-type try_operator = [
-    `Try of Token.t (* "try" *)
-  | `TryB of Token.t (* "try!" *)
-  | `TryQ of Token.t (* "try?" *)
-]
 
 type function_modifier = [
     `Infix of Token.t (* "infix" *)
@@ -34,11 +30,13 @@ type async_modifier = Token.t
 
 type pat_97d645c = Token.t (* pattern `[^\r\n` ]*` *)
 
+type statement_label = Token.t
+
 type multi_line_str_text = Token.t (* pattern "[^\\\\\"]+" *)
 
 type oct_literal = Token.t
 
-type tok_pat_c201ddc = Token.t
+type tok_dollar_pat_88eeeaa = Token.t
 
 type nil_coalescing_operator_custom = Token.t
 
@@ -52,6 +50,12 @@ type bitwise_binary_operator = [
   | `HAT of Token.t (* "^" *)
   | `LTLT of Token.t (* "<<" *)
   | `GTGT of Token.t (* ">>" *)
+]
+
+type try_operator = [
+    `Try of Token.t (* "try" *)
+  | `TryB of Token.t (* "try!" *)
+  | `TryQ of Token.t (* "try?" *)
 ]
 
 type implicit_semi = Token.t
@@ -79,8 +83,6 @@ type assignment_and_operator = [
   | `PERCEQ of Token.t (* "%=" *)
   | `EQ of Token.t (* "=" *)
 ]
-
-type where_keyword = Token.t
 
 type async_keyword_custom = Token.t
 
@@ -111,6 +113,9 @@ type comparison_operator = [
 
 type pat_888b548 = Token.t (* pattern \{[0-9a-fA-F]+\} *)
 
+type semgrep_ellipsis_metavar =
+  Token.t (* pattern \$\.\.\.[a-zA-Z_][a-zA-Z_0-9]* *)
+
 type import_kind = [
     `Typeas of Token.t (* "typealias" *)
   | `Struct of Token.t (* "struct" *)
@@ -136,7 +141,7 @@ type mutation_modifier = [
 
 type explicit_semi = Token.t
 
-type tok_dollar_pat_88eeeaa = Token.t
+type throws_keyword = Token.t
 
 type multiline_comment = Token.t
 
@@ -166,14 +171,6 @@ type eq_eq_custom = Token.t
 
 type pat_f630af3 = Token.t (* pattern [^\r\n]* *)
 
-type statement_label = Token.t
-
-type multiline_comment_explicit = unit (* blank *)
-
-type default_keyword = Token.t
-
-type disjunction_operator_custom = Token.t
-
 type special_literal = [
     `HASH_36725ee of Token.t (* "#file" *)
   | `HASH_ee0b998 of Token.t (* "#fileID" *)
@@ -184,6 +181,12 @@ type special_literal = [
   | `HASH_4d47dbe of Token.t (* "#dsohandle" *)
 ]
 
+type multiline_comment_explicit = unit (* blank *)
+
+type default_keyword = Token.t
+
+type disjunction_operator_custom = Token.t
+
 type else_ = Token.t
 
 type plus_then_ws = Token.t
@@ -191,6 +194,8 @@ type plus_then_ws = Token.t
 type as_quest_custom = Token.t
 
 type eq_custom = Token.t
+
+type where_keyword = Token.t
 
 type dot_custom = Token.t
 
@@ -210,8 +215,6 @@ type pat_88eeeaa =
 
 type conjunction_operator_custom = Token.t
 
-type throws_keyword = Token.t
-
 type binding_pattern_kind = [
     `Var of Token.t (* "var" *)
   | `Let of Token.t (* "let" *)
@@ -227,6 +230,11 @@ type constructor_function_decl = (
     Token.t (* "init" *)
   * [ `Quest of Token.t (* "?" *) | `Bang of bang (*tok*) ] option
 )
+
+type range_operator = [
+    `Open_ended_range_op of Token.t (* "..<" *)
+  | `Three_dot_op of Token.t (* "..." *)
+]
 
 type parameter_modifiers = parameter_modifier list (* one or more *)
 
@@ -244,14 +252,14 @@ type modify_specifier = (mutation_modifier option * Token.t (* "_modify" *))
 
 type setter_specifier = (mutation_modifier option * Token.t (* "set" *))
 
-type range_operator = [
-    `Open_ended_range_op of Token.t (* "..<" *)
-  | `Three_dot_op of Token.t (* "..." *)
-]
-
 type semi = [
     `Impl_semi of implicit_semi (*tok*)
   | `Expl_semi of explicit_semi (*tok*)
+]
+
+type throws = [
+    `Throws_kw of throws_keyword (*tok*)
+  | `Rethrs_kw of rethrows_keyword (*tok*)
 ]
 
 type shebang_line = (Token.t (* "#!" *) * pat_f630af3)
@@ -290,11 +298,6 @@ type simple_identifier = [
   | `Actor of Token.t (* "actor" *)
 ]
 
-type throws = [
-    `Throws_kw of throws_keyword (*tok*)
-  | `Rethrs_kw of rethrows_keyword (*tok*)
-]
-
 type possibly_async_binding_pattern_kind = (
     async_modifier (*tok*) option
   * binding_pattern_kind
@@ -309,6 +312,10 @@ type class_member_separator = [
     `Semi of semi
   | `Mult_comm_expl of multiline_comment_explicit (*tok*)
 ]
+
+type getter_effects =
+  [ `Async_kw of async_keyword_custom (*tok*) | `Throws of throws ]
+    list (* one or more *)
 
 type equality_operator = [
     `BANGEQ of Token.t (* "!=" *)
@@ -337,10 +344,6 @@ type as_operator = [
 
 type bound_identifier = simple_identifier
 
-type getter_effects =
-  [ `Async_kw of async_keyword_custom (*tok*) | `Throws of throws ]
-    list (* one or more *)
-
 type multi_line_string_content = [
     `Multi_line_str_text of multi_line_str_text (*tok*)
   | `Str_esca_char of str_escaped_char
@@ -351,6 +354,12 @@ type line_string_content = [
     `Line_str_text of line_str_text (*tok*)
   | `Str_esca_char of str_escaped_char
 ]
+
+type getter_specifier = (
+    mutation_modifier option
+  * Token.t (* "get" *)
+  * getter_effects option
+)
 
 type referenceable_operator = [
     `Custom_op of custom_operator
@@ -397,10 +406,11 @@ type precedence_group_attribute = (
   * [ `Simple_id of bound_identifier | `Bool_lit of boolean_literal ]
 )
 
-type getter_specifier = (
-    mutation_modifier option
-  * Token.t (* "get" *)
-  * getter_effects option
+type protocol_property_requirements = (
+    Token.t (* "{" *)
+  * [ `Getter_spec of getter_specifier | `Setter_spec of setter_specifier ]
+      list (* zero or more *)
+  * Token.t (* "}" *)
 )
 
 type non_constructor_function_decl = (
@@ -419,13 +429,6 @@ type availability_argument = [
 
 type precedence_group_attributes =
   precedence_group_attribute list (* one or more *)
-
-type protocol_property_requirements = (
-    Token.t (* "{" *)
-  * [ `Getter_spec of getter_specifier | `Setter_spec of setter_specifier ]
-      list (* zero or more *)
-  * Token.t (* "}" *)
-)
 
 type precedence_group_declaration = (
     Token.t (* "precedencegroup" *)
@@ -774,6 +777,7 @@ and expression = [
       | `Async of Token.t (* "async" *)
     ]
   | `Semg_exp_ellips of Token.t (* "..." *)
+  | `Semg_ellips_meta of semgrep_ellipsis_metavar (*tok*)
   | `Semg_deep_ellips of (
         Token.t (* "<..." *) * expression * custom_operator
     )
@@ -1632,6 +1636,10 @@ type self_expression (* inlined *) = Token.t (* "self" *)
 
 type open_ended_range_operator (* inlined *) = Token.t (* "..<" *)
 
+type immediate_quest (* inlined *) = Token.t (* "?" *)
+
+type three_dot_operator (* inlined *) = Token.t (* "..." *)
+
 type use_site_target (* inlined *) = (
     [
         `Prop of Token.t (* "property" *)
@@ -1645,9 +1653,7 @@ type use_site_target (* inlined *) = (
   * Token.t (* ":" *)
 )
 
-type immediate_quest (* inlined *) = Token.t (* "?" *)
-
-type throw_keyword (* inlined *) = Token.t (* "throw" *)
+type comment (* inlined *) = Token.t
 
 type visibility_modifier (* inlined *) = (
     [
@@ -1660,25 +1666,23 @@ type visibility_modifier (* inlined *) = (
   * (Token.t (* "(" *) * Token.t (* "set" *) * Token.t (* ")" *)) option
 )
 
-type super_expression (* inlined *) = Token.t (* "super" *)
-
-type comment (* inlined *) = Token.t
+type throw_keyword (* inlined *) = Token.t (* "throw" *)
 
 type await_operator (* inlined *) = Token.t (* "await" *)
 
-type is_operator (* inlined *) = Token.t (* "is" *)
+type wildcard_pattern (* inlined *) = Token.t (* "_" *)
 
-type semgrep_expression_ellipsis (* inlined *) = Token.t (* "..." *)
+type is_operator (* inlined *) = Token.t (* "is" *)
 
 type diagnostic (* inlined *) = Token.t
 
 type semgrep_ellipsis (* inlined *) = Token.t (* "..." *)
 
-type three_dot_operator (* inlined *) = Token.t (* "..." *)
+type super_expression (* inlined *) = Token.t (* "super" *)
 
 type property_behavior_modifier (* inlined *) = Token.t (* "lazy" *)
 
-type wildcard_pattern (* inlined *) = Token.t (* "_" *)
+type semgrep_expression_ellipsis (* inlined *) = Token.t (* "..." *)
 
 type directive (* inlined *) = Token.t
 
