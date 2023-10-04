@@ -58,6 +58,7 @@ const PRECS = {
   assignment: -3,
   comment: -3,
   lambda: -3,
+  regex: -4,
 };
 
 const DYNAMIC_PRECS = {
@@ -172,6 +173,9 @@ module.exports = grammar({
     [$._modifierless_class_declaration, $.property_modifier],
     [$._modifierless_class_declaration, $.simple_identifier],
     [$._fn_call_lambda_arguments],
+
+    // `lazy` is also allowed as an identifier...
+    [$.property_behavior_modifier, $.simple_identifier],
   ],
   extras: ($) => [
     $.comment,
@@ -260,7 +264,8 @@ module.exports = grammar({
         /`[^\r\n` ]*`/,
         /\$[0-9]+/,
         token(seq("$", LEXICAL_IDENTIFIER)),
-        "actor"
+        "actor",
+        "lazy"
       ),
     identifier: ($) => sep1($.simple_identifier, $._dot),
     // Literals
@@ -273,6 +278,7 @@ module.exports = grammar({
         $.real_literal,
         $.boolean_literal,
         $._string_literal,
+        $.regex_literal,
         "nil"
       ),
     // TODO: Hex exponents
@@ -341,6 +347,30 @@ module.exports = grammar({
       ),
     _escaped_identifier: ($) => /\\[0\\tnr"'\n]/,
     multi_line_str_text: ($) => /[^\\"]+/,
+    // Based on https://gitlab.com/woolsweater/tree-sitter-swifter/-/blob/3d47c85bd47ce54cdf2023a9c0e01eb90adfcc1d/grammar.js#L1019
+    // But required modifications to hit all of the cases in SE-354
+    regex_literal: ($) =>
+      choice(
+        $._extended_regex_literal,
+        $._multiline_regex_literal,
+        $._oneline_regex_literal
+      ),
+
+    _extended_regex_literal: ($) => /#\/((\/[^#])|[^\n])+\/#/,
+
+    _multiline_regex_literal: ($) => seq(/#\/\n/, /(\/[^#]|[^/])*?\n\/#/),
+
+    _oneline_regex_literal: ($) =>
+      token(
+        prec(
+          PRECS.regex,
+          seq(
+            "/",
+            token.immediate(/[^ \t\n]?[^/\n]*[^ \t\n/]/),
+            token.immediate("/")
+          )
+        )
+      ),
     ////////////////////////////////
     // Types - https://docs.swift.org/swift-book/ReferenceManual/Types.html
     ////////////////////////////////
@@ -679,27 +709,20 @@ module.exports = grammar({
           seq("[", optional(sep1($.value_argument, ",")), "]")
         )
       ),
+    value_argument_label: ($) =>
+      prec.left(
+        choice($.simple_identifier, alias("async", $.simple_identifier))
+      ),
     value_argument: ($) =>
       prec.left(
         seq(
           optional($.type_modifiers),
           choice(
             repeat1(
-              seq(field("reference_specifier", $.simple_identifier), ":")
+              seq(field("reference_specifier", $.value_argument_label), ":")
             ),
             seq(
-              optional(
-                seq(
-                  field(
-                    "name",
-                    choice(
-                      $.simple_identifier,
-                      alias("async", $.simple_identifier)
-                    )
-                  ),
-                  ":"
-                )
-              ),
+              optional(seq(field("name", $.value_argument_label), ":")),
               field("value", $._expression)
             )
           )
@@ -746,7 +769,7 @@ module.exports = grammar({
           )
         )
       ),
-    _await_operator: ($) => "await",
+    _await_operator: ($) => alias("await", "await"),
     ternary_expression: ($) =>
       prec.right(
         PRECS.ternary,
@@ -1025,7 +1048,10 @@ module.exports = grammar({
         "+",
         "-"
       ),
-    _multiplicative_operator: ($) => choice("*", "/", "%"),
+    // The `/` operator conflicts with a regex literal (which itself appears to conflict with a
+    // comment, for some reason), so we must give it equivalent token precedence.
+    _multiplicative_operator: ($) =>
+      choice("*", alias(token(prec(PRECS.regex, "/")), "/"), "%"),
     as_operator: ($) => choice($._as, $._as_quest, $._as_bang),
     _prefix_unary_operator: ($) =>
       prec.right(
@@ -1666,9 +1692,9 @@ module.exports = grammar({
         ),
         optional($.type_annotation)
       ),
-    _binding_pattern_kind: ($) => field("mutability", choice("var", "let")),
+    value_binding_pattern: ($) => field("mutability", choice("var", "let")),
     _possibly_async_binding_pattern_kind: ($) =>
-      seq(optional($._async_modifier), $._binding_pattern_kind),
+      seq(optional($._async_modifier), $.value_binding_pattern),
     _binding_kind_and_pattern: ($) =>
       seq(
         $._possibly_async_binding_pattern_kind,
@@ -1699,7 +1725,7 @@ module.exports = grammar({
       ),
     _binding_pattern: ($) =>
       seq(
-        seq(optional("case"), $._binding_pattern_kind),
+        seq(optional("case"), $.value_binding_pattern),
         $._no_expr_pattern_already_bound
       ),
 
@@ -1722,11 +1748,14 @@ module.exports = grammar({
         $.function_modifier,
         $.mutation_modifier,
         $.property_modifier,
-        $.parameter_modifier,
-        $.property_behavior_modifier
+        $.parameter_modifier
       ),
     _locally_permitted_modifier: ($) =>
-      choice($.ownership_modifier, $.inheritance_modifier),
+      choice(
+        $.ownership_modifier,
+        $.inheritance_modifier,
+        $.property_behavior_modifier
+      ),
     property_behavior_modifier: ($) => "lazy",
     type_modifiers: ($) => repeat1($.attribute),
     member_modifier: ($) =>
