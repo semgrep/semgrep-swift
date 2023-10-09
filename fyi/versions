@@ -1,6 +1,6 @@
 File: semgrep-grammars/src/tree-sitter-swift/LICENSE
 Git repo name: tree-sitter-swift
-Latest commit in repo: 10eb01d29827f24b1271672e89790661d94da9e1
+Latest commit in repo: 597d544b3c93b2f67d2e143f27cc51ba874ec5c3
 Last change in file:
   commit 90cd9604a7db32fbec45a040a7bdb6aaa89b565c
   gpg: Signature made Sat 14 Aug 2021 09:10:20 AM PDT
@@ -13,23 +13,27 @@ Last change in file:
 ---
 File: semgrep-grammars/src/tree-sitter-swift/grammar.js
 Git repo name: tree-sitter-swift
-Latest commit in repo: 10eb01d29827f24b1271672e89790661d94da9e1
+Latest commit in repo: 597d544b3c93b2f67d2e143f27cc51ba874ec5c3
 Last change in file:
-  commit 10eb01d29827f24b1271672e89790661d94da9e1
-  gpg: Signature made Sat 09 Sep 2023 10:04:38 PM PDT
-  gpg:                using RSA key 4AEE18F83AFDEB23
-  gpg: Good signature from "GitHub (web-flow commit signing) <noreply@github.com>" [full]
-  Merge: 29541ac 242c46c
-  Author: Alex Pinkus <62194897+alex-pinkus@users.noreply.github.com>
-  Date:   Sat Sep 9 22:04:38 2023 -0700
+  commit 597d544b3c93b2f67d2e143f27cc51ba874ec5c3
+  Author: Alex Pinkus <pinkus@amazon.com>
+  Date:   Sun Oct 8 16:26:24 2023 -0700
   
-      Merge pull request #314 from ketkarameya/add-label-for-value-argument
+      Loosen the restrictions around directly assignable expressions
       
-      Add  wrapper around value arguments's label
+      We currently only allow a subset of expressions to be used as the target
+      of assignment. The Swift compiler also only allows a subset, but keeping
+      track of their subset is hard. For example, in #321 we see that an
+      optional expression can be used for assignment but we don't currently
+      support that.
+      
+      Let's get out of that game. All expressions can be assignments now!
+      Sure, that doesn't work for the real swift compiler, but that's not our
+      circus, and furthermore, not our monkeys.
 ---
 File: semgrep-grammars/src/semgrep-swift/grammar.js
 Git repo name: ocaml-tree-sitter-semgrep
-Latest commit in repo: 857fa3e64d751cc1e24a037bf39cd3b24affcc08
+Latest commit in repo: 1e0f6a81b84b57f58692e47b74544daccb08de8a
 Last change in file:
   commit 32f3fd22446cab32d4a6a0a08f34a4f0b03abe0a
   Author: Heejong Lee <heejong@gmail.com>

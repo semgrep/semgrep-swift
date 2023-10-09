@@ -1007,7 +1007,7 @@ and map_array_type (env : env) ((v1, v2, v3) : CST.array_type) =
 and map_assignment (env : env) ((v1, v2, v3) : CST.assignment) =
   let v1 = map_directly_assignable_expression env v1 in
   let v2 = map_assignment_and_operator env v2 in
-  let v3 = map_expression env v3 in
+  let v3 = map_directly_assignable_expression env v3 in
   R.Tuple [v1; v2; v3]
 
 and map_associatedtype_declaration (env : env) ((v1, v2, v3, v4, v5, v6) : CST.associatedtype_declaration) =
@@ -1074,11 +1074,11 @@ and map_attribute_argument (env : env) (x : CST.attribute_argument) =
   | `Simple_id_COLON_exp (v1, v2, v3) -> R.Case ("Simple_id_COLON_exp",
       let v1 = map_bound_identifier env v1 in
       let v2 = (* ":" *) token env v2 in
-      let v3 = map_expression env v3 in
+      let v3 = map_directly_assignable_expression env v3 in
       R.Tuple [v1; v2; v3]
     )
   | `Exp x -> R.Case ("Exp",
-      map_expression env x
+      map_directly_assignable_expression env x
     )
   | `Rep1_simple_id_COLON xs -> R.Case ("Rep1_simple_id_COLON",
       R.List (List.map (fun (v1, v2) ->
@@ -1135,31 +1135,31 @@ and map_basic_literal (env : env) (x : CST.basic_literal) =
 and map_binary_expression (env : env) (x : CST.binary_expression) =
   (match x with
   | `Mult_exp (v1, v2, v3) -> R.Case ("Mult_exp",
-      let v1 = map_expression env v1 in
+      let v1 = map_directly_assignable_expression env v1 in
       let v2 = map_multiplicative_operator env v2 in
-      let v3 = map_expression env v3 in
+      let v3 = map_directly_assignable_expression env v3 in
       R.Tuple [v1; v2; v3]
     )
   | `Addi_exp (v1, v2, v3) -> R.Case ("Addi_exp",
-      let v1 = map_expression env v1 in
+      let v1 = map_directly_assignable_expression env v1 in
       let v2 = map_additive_operator env v2 in
-      let v3 = map_expression env v3 in
+      let v3 = map_directly_assignable_expression env v3 in
       R.Tuple [v1; v2; v3]
     )
   | `Range_exp (v1, v2, v3) -> R.Case ("Range_exp",
-      let v1 = map_expression env v1 in
+      let v1 = map_directly_assignable_expression env v1 in
       let v2 = map_range_operator env v2 in
       let v3 = map_expr_hack_at_ternary_binary_suffix env v3 in
       R.Tuple [v1; v2; v3]
     )
   | `Infix_exp (v1, v2, v3) -> R.Case ("Infix_exp",
-      let v1 = map_expression env v1 in
+      let v1 = map_directly_assignable_expression env v1 in
       let v2 = map_custom_operator env v2 in
       let v3 = map_expr_hack_at_ternary_binary_suffix env v3 in
       R.Tuple [v1; v2; v3]
     )
   | `Nil_coal_exp (v1, v2, v3) -> R.Case ("Nil_coal_exp",
-      let v1 = map_expression env v1 in
+      let v1 = map_directly_assignable_expression env v1 in
       let v2 =
         (* nil_coalescing_operator_custom *) token env v2
       in
@@ -1167,37 +1167,37 @@ and map_binary_expression (env : env) (x : CST.binary_expression) =
       R.Tuple [v1; v2; v3]
     )
   | `Check_exp (v1, v2, v3) -> R.Case ("Check_exp",
-      let v1 = map_expression env v1 in
+      let v1 = map_directly_assignable_expression env v1 in
       let v2 = (* "is" *) token env v2 in
       let v3 = map_type_ env v3 in
       R.Tuple [v1; v2; v3]
     )
   | `Equa_exp (v1, v2, v3) -> R.Case ("Equa_exp",
-      let v1 = map_expression env v1 in
+      let v1 = map_directly_assignable_expression env v1 in
       let v2 = map_equality_operator env v2 in
       let v3 = map_expr_hack_at_ternary_binary_suffix env v3 in
       R.Tuple [v1; v2; v3]
     )
   | `Comp_exp (v1, v2, v3) -> R.Case ("Comp_exp",
-      let v1 = map_expression env v1 in
+      let v1 = map_directly_assignable_expression env v1 in
       let v2 = map_comparison_operator env v2 in
       let v3 = map_expr_hack_at_ternary_binary_suffix env v3 in
       R.Tuple [v1; v2; v3]
     )
   | `Conj_exp (v1, v2, v3) -> R.Case ("Conj_exp",
-      let v1 = map_expression env v1 in
+      let v1 = map_directly_assignable_expression env v1 in
       let v2 = (* conjunction_operator_custom *) token env v2 in
       let v3 = map_expr_hack_at_ternary_binary_suffix env v3 in
       R.Tuple [v1; v2; v3]
     )
   | `Disj_exp (v1, v2, v3) -> R.Case ("Disj_exp",
-      let v1 = map_expression env v1 in
+      let v1 = map_directly_assignable_expression env v1 in
       let v2 = (* disjunction_operator_custom *) token env v2 in
       let v3 = map_expr_hack_at_ternary_binary_suffix env v3 in
       R.Tuple [v1; v2; v3]
     )
   | `Bitw_oper (v1, v2, v3) -> R.Case ("Bitw_oper",
-      let v1 = map_expression env v1 in
+      let v1 = map_directly_assignable_expression env v1 in
       let v2 = map_bitwise_binary_operator env v2 in
       let v3 = map_expr_hack_at_ternary_binary_suffix env v3 in
       R.Tuple [v1; v2; v3]
@@ -1254,7 +1254,7 @@ and map_binding_pattern_with_expr (env : env) ((v1, v2) : CST.binding_pattern_wi
         map_binding_pattern env x
       )
     | `Exp x -> R.Case ("Exp",
-        map_expression env x
+        map_directly_assignable_expression env x
       )
     )
   in
@@ -1300,7 +1300,7 @@ and map_bodyless_function_declaration (env : env) ((v1, v2, v3) : CST.bodyless_f
   R.Tuple [v1; v2; v3]
 
 and map_call_expression (env : env) ((v1, v2) : CST.call_expression) =
-  let v1 = map_expression env v1 in
+  let v1 = map_directly_assignable_expression env v1 in
   let v2 = map_call_suffix env v2 in
   R.Tuple [v1; v2]
 
@@ -1352,7 +1352,7 @@ and map_capture_list_item (env : env) (x : CST.capture_list_item) =
         (match v3 with
         | Some (v1, v2) -> R.Option (Some (
             let v1 = (* eq_custom *) token env v1 in
-            let v2 = map_expression env v2 in
+            let v2 = map_directly_assignable_expression env v2 in
             R.Tuple [v1; v2]
           ))
         | None -> R.Option None)
@@ -1535,7 +1535,7 @@ and map_control_transfer_statement (env : env) (x : CST.control_transfer_stateme
       let v2 =
         (match v2 with
         | Some x -> R.Option (Some (
-            map_expression env x
+            map_directly_assignable_expression env x
           ))
         | None -> R.Option None)
       in
@@ -1573,9 +1573,9 @@ and map_deprecated_operator_declaration_body (env : env) ((v1, v2, v3) : CST.dep
   R.Tuple [v1; v2; v3]
 
 and map_dictionary_literal_item (env : env) ((v1, v2, v3) : CST.dictionary_literal_item) =
-  let v1 = map_expression env v1 in
+  let v1 = map_directly_assignable_expression env v1 in
   let v2 = (* ":" *) token env v2 in
-  let v3 = map_expression env v3 in
+  let v3 = map_directly_assignable_expression env v3 in
   R.Tuple [v1; v2; v3]
 
 and map_dictionary_type (env : env) ((v1, v2, v3, v4, v5) : CST.dictionary_type) =
@@ -1609,26 +1609,7 @@ and map_direct_or_indirect_binding (env : env) ((v1, v2) : CST.direct_or_indirec
   R.Tuple [v1; v2]
 
 and map_directly_assignable_expression (env : env) (x : CST.directly_assignable_expression) =
-  (match x with
-  | `Simple_id x -> R.Case ("Simple_id",
-      map_bound_identifier env x
-    )
-  | `Navi_exp x -> R.Case ("Navi_exp",
-      map_navigation_expression env x
-    )
-  | `Call_exp x -> R.Case ("Call_exp",
-      map_call_expression env x
-    )
-  | `Tuple_exp x -> R.Case ("Tuple_exp",
-      map_tuple_expression env x
-    )
-  | `Self_exp tok -> R.Case ("Self_exp",
-      (* "self" *) token env tok
-    )
-  | `Post_exp x -> R.Case ("Post_exp",
-      map_postfix_expression env x
-    )
-  )
+  map_expression env x
 
 and map_do_statement (env : env) ((v1, v2, v3) : CST.do_statement) =
   let v1 = (* "do" *) token env v1 in
@@ -1729,7 +1710,7 @@ and map_enum_entry_suffix (env : env) (x : CST.enum_entry_suffix) =
               (match v3 with
               | Some (v1, v2) -> R.Option (Some (
                   let v1 = (* eq_custom *) token env v1 in
-                  let v2 = map_expression env v2 in
+                  let v2 = map_directly_assignable_expression env v2 in
                   R.Tuple [v1; v2]
                 ))
               | None -> R.Option None)
@@ -1749,7 +1730,7 @@ and map_enum_entry_suffix (env : env) (x : CST.enum_entry_suffix) =
                   (match v4 with
                   | Some (v1, v2) -> R.Option (Some (
                       let v1 = (* eq_custom *) token env v1 in
-                      let v2 = map_expression env v2 in
+                      let v2 = map_directly_assignable_expression env v2 in
                       R.Tuple [v1; v2]
                     ))
                   | None -> R.Option None)
@@ -1766,7 +1747,7 @@ and map_enum_entry_suffix (env : env) (x : CST.enum_entry_suffix) =
     )
   | `Equal_sign_exp (v1, v2) -> R.Case ("Equal_sign_exp",
       let v1 = (* eq_custom *) token env v1 in
-      let v2 = map_expression env v2 in
+      let v2 = map_directly_assignable_expression env v2 in
       R.Tuple [v1; v2]
     )
   )
@@ -1777,10 +1758,10 @@ and map_expr_hack_at_ternary_binary_call_suffix (env : env) (x : CST.expr_hack_a
 and map_expr_hack_at_ternary_binary_suffix (env : env) (x : CST.expr_hack_at_ternary_binary_suffix) =
   (match x with
   | `Exp x -> R.Case ("Exp",
-      map_expression env x
+      map_directly_assignable_expression env x
     )
   | `Expr_hack_at_tern_bin_call (v1, v2) -> R.Case ("Expr_hack_at_tern_bin_call",
-      let v1 = map_expression env v1 in
+      let v1 = map_directly_assignable_expression env v1 in
       let v2 =
         map_expr_hack_at_ternary_binary_call_suffix env v2
       in
@@ -1811,7 +1792,7 @@ and map_expression (env : env) (x : CST.expression) =
           map_assignment env x
         )
       | `Exp_imme_quest (v1, v2) -> R.Case ("Exp_imme_quest",
-          let v1 = map_expression env v1 in
+          let v1 = map_directly_assignable_expression env v1 in
           let v2 = (* "?" *) token env v2 in
           R.Tuple [v1; v2]
         )
@@ -1828,7 +1809,7 @@ and map_expression (env : env) (x : CST.expression) =
     )
   | `Semg_deep_ellips (v1, v2, v3) -> R.Case ("Semg_deep_ellips",
       let v1 = (* "<..." *) token env v1 in
-      let v2 = map_expression env v2 in
+      let v2 = map_directly_assignable_expression env v2 in
       let v3 = map_custom_operator env v3 in
       R.Tuple [v1; v2; v3]
     )
@@ -1871,7 +1852,7 @@ and map_for_statement (env : env) ((v1, v2, v3, v4, v5, v6, v7, v8, v9) : CST.fo
     | None -> R.Option None)
   in
   let v6 = (* "in" *) token env v6 in
-  let v7 = map_expression env v7 in
+  let v7 = map_directly_assignable_expression env v7 in
   let v8 =
     (match v8 with
     | Some x -> R.Option (Some (
@@ -1932,7 +1913,7 @@ and map_function_value_parameter (env : env) ((v1, v2, v3) : CST.function_value_
     (match v3 with
     | Some (v1, v2) -> R.Option (Some (
         let v1 = (* eq_custom *) token env v1 in
-        let v2 = map_expression env v2 in
+        let v2 = map_directly_assignable_expression env v2 in
         R.Tuple [v1; v2]
       ))
     | None -> R.Option None)
@@ -1983,7 +1964,7 @@ and map_if_condition_sequence_item (env : env) (x : CST.if_condition_sequence_it
         (match v2 with
         | Some (v1, v2) -> R.Option (Some (
             let v1 = (* eq_custom *) token env v1 in
-            let v2 = map_expression env v2 in
+            let v2 = map_directly_assignable_expression env v2 in
             R.Tuple [v1; v2]
           ))
         | None -> R.Option None)
@@ -1998,7 +1979,7 @@ and map_if_condition_sequence_item (env : env) (x : CST.if_condition_sequence_it
       R.Tuple [v1; v2; v3]
     )
   | `Exp x -> R.Case ("Exp",
-      map_expression env x
+      map_directly_assignable_expression env x
     )
   | `Avai_cond (v1, v2, v3, v4, v5) -> R.Case ("Avai_cond",
       let v1 = (* "#available" *) token env v1 in
@@ -2362,7 +2343,7 @@ and map_local_declaration (env : env) (x : CST.local_declaration) =
 and map_local_statement (env : env) (x : CST.local_statement) =
   (match x with
   | `Exp x -> R.Case ("Exp",
-      map_expression env x
+      map_directly_assignable_expression env x
     )
   | `Local_decl x -> R.Case ("Local_decl",
       map_local_declaration env x
@@ -2610,20 +2591,6 @@ and map_navigable_type_expression (env : env) (x : CST.navigable_type_expression
     )
   )
 
-and map_navigation_expression (env : env) ((v1, v2) : CST.navigation_expression) =
-  let v1 =
-    (match v1 with
-    | `Navi_type_exp x -> R.Case ("Navi_type_exp",
-        map_navigable_type_expression env x
-      )
-    | `Exp x -> R.Case ("Exp",
-        map_expression env x
-      )
-    )
-  in
-  let v2 = map_navigation_suffix env v2 in
-  R.Tuple [v1; v2]
-
 and map_no_expr_pattern_already_bound (env : env) ((v1, v2) : CST.no_expr_pattern_already_bound) =
   let v1 =
     (match v1 with
@@ -2716,15 +2683,38 @@ and map_possibly_implicitly_unwrapped_type (env : env) ((v1, v2) : CST.possibly_
   in
   R.Tuple [v1; v2]
 
-and map_postfix_expression (env : env) ((v1, v2) : CST.postfix_expression) =
-  let v1 = map_expression env v1 in
-  let v2 = map_postfix_unary_operator env v2 in
-  R.Tuple [v1; v2]
-
 and map_primary_expression (env : env) (x : CST.primary_expression) =
   (match x with
-  | `Tuple_exp x -> R.Case ("Tuple_exp",
-      map_tuple_expression env x
+  | `Tuple_exp (v1, v2, v3, v4, v5) -> R.Case ("Tuple_exp",
+      let v1 = (* "(" *) token env v1 in
+      let v2 =
+        (match v2 with
+        | Some (v1, v2) -> R.Option (Some (
+            let v1 = map_bound_identifier env v1 in
+            let v2 = (* ":" *) token env v2 in
+            R.Tuple [v1; v2]
+          ))
+        | None -> R.Option None)
+      in
+      let v3 = map_directly_assignable_expression env v3 in
+      let v4 =
+        R.List (List.map (fun (v1, v2, v3) ->
+          let v1 = (* "," *) token env v1 in
+          let v2 =
+            (match v2 with
+            | Some (v1, v2) -> R.Option (Some (
+                let v1 = map_bound_identifier env v1 in
+                let v2 = (* ":" *) token env v2 in
+                R.Tuple [v1; v2]
+              ))
+            | None -> R.Option None)
+          in
+          let v3 = map_directly_assignable_expression env v3 in
+          R.Tuple [v1; v2; v3]
+        ) v4)
+      in
+      let v5 = (* ")" *) token env v5 in
+      R.Tuple [v1; v2; v3; v4; v5]
     )
   | `Basic_lit x -> R.Case ("Basic_lit",
       map_basic_literal env x
@@ -2752,13 +2742,13 @@ and map_primary_expression (env : env) (x : CST.primary_expression) =
       let v2 = (* "(" *) token env v2 in
       let v3 = map_bound_identifier env v3 in
       let v4 = (* ":" *) token env v4 in
-      let v5 = map_expression env v5 in
+      let v5 = map_directly_assignable_expression env v5 in
       let v6 =
         R.List (List.map (fun (v1, v2, v3, v4) ->
           let v1 = (* "," *) token env v1 in
           let v2 = map_bound_identifier env v2 in
           let v3 = (* ":" *) token env v3 in
-          let v4 = map_expression env v4 in
+          let v4 = map_directly_assignable_expression env v4 in
           R.Tuple [v1; v2; v3; v4]
         ) v6)
       in
@@ -2770,11 +2760,11 @@ and map_primary_expression (env : env) (x : CST.primary_expression) =
       let v2 =
         (match v2 with
         | Some (v1, v2) -> R.Option (Some (
-            let v1 = map_expression env v1 in
+            let v1 = map_directly_assignable_expression env v1 in
             let v2 =
               R.List (List.map (fun (v1, v2) ->
                 let v1 = (* "," *) token env v1 in
-                let v2 = map_expression env v2 in
+                let v2 = map_directly_assignable_expression env v2 in
                 R.Tuple [v1; v2]
               ) v2)
             in
@@ -2833,7 +2823,7 @@ and map_primary_expression (env : env) (x : CST.primary_expression) =
       let v2 =
         (match v2 with
         | `Exp x -> R.Case ("Exp",
-            map_expression env x
+            map_directly_assignable_expression env x
           )
         | `Bin_exp x -> R.Case ("Bin_exp",
             map_binary_expression env x
@@ -2853,7 +2843,7 @@ and map_primary_expression (env : env) (x : CST.primary_expression) =
       let v2 =
         (match v2 with
         | `Exp x -> R.Case ("Exp",
-            map_expression env x
+            map_directly_assignable_expression env x
           )
         | `Call_exp x -> R.Case ("Call_exp",
             map_call_expression env x
@@ -2899,7 +2889,7 @@ and map_primary_expression (env : env) (x : CST.primary_expression) =
   | `Key_path_str_exp (v1, v2, v3, v4) -> R.Case ("Key_path_str_exp",
       let v1 = (* "#keyPath" *) token env v1 in
       let v2 = (* "(" *) token env v2 in
-      let v3 = map_expression env v3 in
+      let v3 = map_directly_assignable_expression env v3 in
       let v4 = (* ")" *) token env v4 in
       R.Tuple [v1; v2; v3; v4]
     )
@@ -3099,7 +3089,7 @@ and map_single_modifierless_property_declaration (env : env) ((v1, v2, v3, v4) :
         (match x with
         | `Equal_sign_exp (v1, v2) -> R.Case ("Equal_sign_exp",
             let v1 = (* eq_custom *) token env v1 in
-            let v2 = map_expression env v2 in
+            let v2 = map_directly_assignable_expression env v2 in
             R.Tuple [v1; v2]
           )
         | `Comp_prop x -> R.Case ("Comp_prop",
@@ -3271,55 +3261,24 @@ and map_switch_pattern (env : env) (x : CST.switch_pattern) =
 
 and map_switch_statement (env : env) ((v1, v2, v3, v4, v5) : CST.switch_statement) =
   let v1 = (* "switch" *) token env v1 in
-  let v2 = map_expression env v2 in
+  let v2 = map_directly_assignable_expression env v2 in
   let v3 = (* "{" *) token env v3 in
   let v4 = R.List (List.map (map_switch_entry env) v4) in
   let v5 = (* "}" *) token env v5 in
   R.Tuple [v1; v2; v3; v4; v5]
 
 and map_ternary_expression (env : env) ((v1, v2, v3, v4, v5) : CST.ternary_expression) =
-  let v1 = map_expression env v1 in
+  let v1 = map_directly_assignable_expression env v1 in
   let v2 = (* "?" *) token env v2 in
-  let v3 = map_expression env v3 in
+  let v3 = map_directly_assignable_expression env v3 in
   let v4 = (* ":" *) token env v4 in
   let v5 = map_expr_hack_at_ternary_binary_suffix env v5 in
   R.Tuple [v1; v2; v3; v4; v5]
 
 and map_throw_statement (env : env) ((v1, v2) : CST.throw_statement) =
   let v1 = (* "throw" *) token env v1 in
-  let v2 = map_expression env v2 in
+  let v2 = map_directly_assignable_expression env v2 in
   R.Tuple [v1; v2]
-
-and map_tuple_expression (env : env) ((v1, v2, v3, v4, v5) : CST.tuple_expression) =
-  let v1 = (* "(" *) token env v1 in
-  let v2 =
-    (match v2 with
-    | Some (v1, v2) -> R.Option (Some (
-        let v1 = map_bound_identifier env v1 in
-        let v2 = (* ":" *) token env v2 in
-        R.Tuple [v1; v2]
-      ))
-    | None -> R.Option None)
-  in
-  let v3 = map_expression env v3 in
-  let v4 =
-    R.List (List.map (fun (v1, v2, v3) ->
-      let v1 = (* "," *) token env v1 in
-      let v2 =
-        (match v2 with
-        | Some (v1, v2) -> R.Option (Some (
-            let v1 = map_bound_identifier env v1 in
-            let v2 = (* ":" *) token env v2 in
-            R.Tuple [v1; v2]
-          ))
-        | None -> R.Option None)
-      in
-      let v3 = map_expression env v3 in
-      R.Tuple [v1; v2; v3]
-    ) v4)
-  in
-  let v5 = (* ")" *) token env v5 in
-  R.Tuple [v1; v2; v3; v4; v5]
 
 and map_tuple_pattern (env : env) ((v1, v2, v3, v4) : CST.tuple_pattern) =
   let v1 = (* "(" *) token env v1 in
@@ -3660,8 +3619,10 @@ and map_unannotated_type (env : env) (x : CST.unannotated_type) =
 
 and map_unary_expression (env : env) (x : CST.unary_expression) =
   (match x with
-  | `Post_exp x -> R.Case ("Post_exp",
-      map_postfix_expression env x
+  | `Post_exp (v1, v2) -> R.Case ("Post_exp",
+      let v1 = map_directly_assignable_expression env v1 in
+      let v2 = map_postfix_unary_operator env v2 in
+      R.Tuple [v1; v2]
     )
   | `Call_exp x -> R.Case ("Call_exp",
       map_call_expression env x
@@ -3683,16 +3644,27 @@ and map_unary_expression (env : env) (x : CST.unary_expression) =
       let v2 = map_constructor_suffix env v2 in
       R.Tuple [v1; v2]
     )
-  | `Navi_exp x -> R.Case ("Navi_exp",
-      map_navigation_expression env x
+  | `Navi_exp (v1, v2) -> R.Case ("Navi_exp",
+      let v1 =
+        (match v1 with
+        | `Navi_type_exp x -> R.Case ("Navi_type_exp",
+            map_navigable_type_expression env x
+          )
+        | `Exp x -> R.Case ("Exp",
+            map_directly_assignable_expression env x
+          )
+        )
+      in
+      let v2 = map_navigation_suffix env v2 in
+      R.Tuple [v1; v2]
     )
   | `Prefix_exp (v1, v2) -> R.Case ("Prefix_exp",
       let v1 = map_prefix_unary_operator env v1 in
-      let v2 = map_expression env v2 in
+      let v2 = map_directly_assignable_expression env v2 in
       R.Tuple [v1; v2]
     )
   | `As_exp (v1, v2, v3) -> R.Case ("As_exp",
-      let v1 = map_expression env v1 in
+      let v1 = map_directly_assignable_expression env v1 in
       let v2 = map_as_operator env v2 in
       let v3 = map_type_ env v3 in
       R.Tuple [v1; v2; v3]
@@ -3714,17 +3686,17 @@ and map_unary_expression (env : env) (x : CST.unary_expression) =
           ))
         | None -> R.Option None)
       in
-      let v4 = map_expression env v4 in
+      let v4 = map_directly_assignable_expression env v4 in
       let v5 = (* ")" *) token env v5 in
       R.Tuple [v1; v2; v3; v4; v5]
     )
   | `Open_start_range_exp (v1, v2) -> R.Case ("Open_start_range_exp",
       let v1 = map_range_operator env v1 in
-      let v2 = map_expression env v2 in
+      let v2 = map_directly_assignable_expression env v2 in
       R.Tuple [v1; v2]
     )
   | `Open_end_range_exp (v1, v2) -> R.Case ("Open_end_range_exp",
-      let v1 = map_expression env v1 in
+      let v1 = map_directly_assignable_expression env v1 in
       let v2 = (* "..." *) token env v2 in
       R.Tuple [v1; v2]
     )
@@ -3807,7 +3779,7 @@ and map_value_argument (env : env) ((v1, v2) : CST.value_argument) =
             ))
           | None -> R.Option None)
         in
-        let v2 = map_expression env v2 in
+        let v2 = map_directly_assignable_expression env v2 in
         R.Tuple [v1; v2]
       )
     )
@@ -3835,7 +3807,7 @@ and map_value_arguments (env : env) (v1 : CST.value_arguments) =
 
 and map_where_clause (env : env) ((v1, v2) : CST.where_clause) =
   let v1 = (* where_keyword *) token env v1 in
-  let v2 = map_expression env v2 in
+  let v2 = map_directly_assignable_expression env v2 in
   R.Tuple [v1; v2]
 
 and map_while_statement (env : env) ((v1, v2, v3, v4, v5, v6) : CST.while_statement) =
@@ -3893,7 +3865,7 @@ let map_global_declaration (env : env) (x : CST.global_declaration) =
 let map_top_level_statement (env : env) (x : CST.top_level_statement) =
   (match x with
   | `Exp x -> R.Case ("Exp",
-      map_expression env x
+      map_directly_assignable_expression env x
     )
   | `Global_decl x -> R.Case ("Global_decl",
       map_global_declaration env x

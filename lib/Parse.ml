@@ -1265,14 +1265,7 @@ let children_regexps : (string * Run.exp option) list = [
   );
   "directly_assignable_expression",
   Some (
-    Alt [|
-      Token (Name "simple_identifier");
-      Token (Name "navigation_expression");
-      Token (Name "call_expression");
-      Token (Name "tuple_expression");
-      Token (Name "self_expression");
-      Token (Name "postfix_expression");
-    |];
+    Token (Name "expression");
   );
   "disjunction_expression",
   Some (
@@ -5931,33 +5924,7 @@ and trans_direct_or_indirect_binding ((kind, body) : mt) : CST.direct_or_indirec
 and trans_directly_assignable_expression ((kind, body) : mt) : CST.directly_assignable_expression =
   match body with
   | Children v ->
-      (match v with
-      | Alt (0, v) ->
-          `Simple_id (
-            trans_simple_identifier (Run.matcher_token v)
-          )
-      | Alt (1, v) ->
-          `Navi_exp (
-            trans_navigation_expression (Run.matcher_token v)
-          )
-      | Alt (2, v) ->
-          `Call_exp (
-            trans_call_expression (Run.matcher_token v)
-          )
-      | Alt (3, v) ->
-          `Tuple_exp (
-            trans_tuple_expression (Run.matcher_token v)
-          )
-      | Alt (4, v) ->
-          `Self_exp (
-            trans_self_expression (Run.matcher_token v)
-          )
-      | Alt (5, v) ->
-          `Post_exp (
-            trans_postfix_expression (Run.matcher_token v)
-          )
-      | _ -> assert false
-      )
+      trans_expression (Run.matcher_token v)
   | Leaf _ -> assert false
 
 and trans_disjunction_expression ((kind, body) : mt) : CST.disjunction_expression =

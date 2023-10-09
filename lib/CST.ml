@@ -468,7 +468,8 @@ type annotated_inheritance_specifier = (
 and array_type = (Token.t (* "[" *) * type_ * Token.t (* "]" *))
 
 and assignment = (
-    directly_assignable_expression * assignment_and_operator * expression
+    directly_assignable_expression * assignment_and_operator
+  * directly_assignable_expression
 )
 
 and associatedtype_declaration = (
@@ -494,9 +495,9 @@ and attribute = (
 
 and attribute_argument = [
     `Simple_id_COLON_exp of (
-        bound_identifier * Token.t (* ":" *) * expression
+        bound_identifier * Token.t (* ":" *) * directly_assignable_expression
     )
-  | `Exp of expression
+  | `Exp of directly_assignable_expression
   | `Rep1_simple_id_COLON of
       (bound_identifier * Token.t (* ":" *)) list (* one or more *)
   | `Rep1_simple_id_int_lit_rep_DOT_int_lit of (
@@ -519,35 +520,48 @@ and basic_literal = [
 ]
 
 and binary_expression = [
-    `Mult_exp of (expression * multiplicative_operator * expression)
-  | `Addi_exp of (expression * additive_operator * expression)
+    `Mult_exp of (
+        directly_assignable_expression * multiplicative_operator
+      * directly_assignable_expression
+    )
+  | `Addi_exp of (
+        directly_assignable_expression * additive_operator
+      * directly_assignable_expression
+    )
   | `Range_exp of (
-        expression * range_operator * expr_hack_at_ternary_binary_suffix
-    )
-  | `Infix_exp of (
-        expression * custom_operator * expr_hack_at_ternary_binary_suffix
-    )
-  | `Nil_coal_exp of (
-        expression * nil_coalescing_operator_custom (*tok*)
+        directly_assignable_expression * range_operator
       * expr_hack_at_ternary_binary_suffix
     )
-  | `Check_exp of (expression * Token.t (* "is" *) * type_)
+  | `Infix_exp of (
+        directly_assignable_expression * custom_operator
+      * expr_hack_at_ternary_binary_suffix
+    )
+  | `Nil_coal_exp of (
+        directly_assignable_expression
+      * nil_coalescing_operator_custom (*tok*)
+      * expr_hack_at_ternary_binary_suffix
+    )
+  | `Check_exp of (
+        directly_assignable_expression * Token.t (* "is" *) * type_
+    )
   | `Equa_exp of (
-        expression * equality_operator * expr_hack_at_ternary_binary_suffix
+        directly_assignable_expression * equality_operator
+      * expr_hack_at_ternary_binary_suffix
     )
   | `Comp_exp of (
-        expression * comparison_operator * expr_hack_at_ternary_binary_suffix
+        directly_assignable_expression * comparison_operator
+      * expr_hack_at_ternary_binary_suffix
     )
   | `Conj_exp of (
-        expression * conjunction_operator_custom (*tok*)
+        directly_assignable_expression * conjunction_operator_custom (*tok*)
       * expr_hack_at_ternary_binary_suffix
     )
   | `Disj_exp of (
-        expression * disjunction_operator_custom (*tok*)
+        directly_assignable_expression * disjunction_operator_custom (*tok*)
       * expr_hack_at_ternary_binary_suffix
     )
   | `Bitw_oper of (
-        expression * bitwise_binary_operator
+        directly_assignable_expression * bitwise_binary_operator
       * expr_hack_at_ternary_binary_suffix
     )
 ]
@@ -575,7 +589,7 @@ and binding_pattern_with_expr = (
     [
         `Univ_allo_pat of universally_allowed_pattern
       | `Bind_pat of binding_pattern
-      | `Exp of expression
+      | `Exp of directly_assignable_expression
     ]
   * Token.t (* "?" *) option
 )
@@ -588,7 +602,7 @@ and bodyless_function_declaration = (
   * modifierless_function_declaration_no_body
 )
 
-and call_expression = (expression * call_suffix)
+and call_expression = (directly_assignable_expression * call_suffix)
 
 and call_suffix = [
     `Value_args of expr_hack_at_ternary_binary_call_suffix
@@ -610,7 +624,7 @@ and capture_list_item = [
   | `Opt_owne_modi_simple_id_opt_equal_sign_exp of (
         ownership_modifier option
       * bound_identifier
-      * (eq_custom (*tok*) * expression) option
+      * (eq_custom (*tok*) * directly_assignable_expression) option
     )
 ]
 
@@ -687,7 +701,7 @@ and control_transfer_statement = [
     `Throw_stmt of throw_statement
   | `Opti_valu_cont_kw_opt_exp of (
         optionally_valueful_control_keyword
-      * expression option
+      * directly_assignable_expression option
     )
 ]
 
@@ -704,7 +718,10 @@ and deprecated_operator_declaration_body = (
   * Token.t (* "}" *)
 )
 
-and dictionary_literal_item = (expression * Token.t (* ":" *) * expression)
+and dictionary_literal_item = (
+    directly_assignable_expression * Token.t (* ":" *)
+  * directly_assignable_expression
+)
 
 and dictionary_type = (
     Token.t (* "[" *) * type_ * Token.t (* ":" *) * type_ * Token.t (* "]" *)
@@ -720,14 +737,7 @@ and direct_or_indirect_binding = (
   * type_annotation option
 )
 
-and directly_assignable_expression = [
-    `Simple_id of bound_identifier
-  | `Navi_exp of navigation_expression
-  | `Call_exp of call_expression
-  | `Tuple_exp of tuple_expression
-  | `Self_exp of Token.t (* "self" *)
-  | `Post_exp of postfix_expression
-]
+and directly_assignable_expression = expression
 
 and do_statement = (
     Token.t (* "do" *)
@@ -764,27 +774,28 @@ and enum_entry_suffix = [
       * (
             tuple_type_item_identifier option
           * type_
-          * (eq_custom (*tok*) * expression) option
+          * (eq_custom (*tok*) * directly_assignable_expression) option
           * (
                 Token.t (* "," *)
               * tuple_type_item_identifier option
               * type_
-              * (eq_custom (*tok*) * expression) option
+              * (eq_custom (*tok*) * directly_assignable_expression) option
             )
               list (* zero or more *)
         )
           option
       * Token.t (* ")" *)
     )
-  | `Equal_sign_exp of (eq_custom (*tok*) * expression)
+  | `Equal_sign_exp of (eq_custom (*tok*) * directly_assignable_expression)
 ]
 
 and expr_hack_at_ternary_binary_call_suffix = value_arguments
 
 and expr_hack_at_ternary_binary_suffix = [
-    `Exp of expression
+    `Exp of directly_assignable_expression
   | `Expr_hack_at_tern_bin_call of (
-        expression * expr_hack_at_ternary_binary_call_suffix
+        directly_assignable_expression
+      * expr_hack_at_ternary_binary_call_suffix
     )
 ]
 
@@ -796,13 +807,16 @@ and expression = [
       | `Tern_exp of ternary_expression
       | `Prim_exp of primary_expression
       | `Assign of assignment
-      | `Exp_imme_quest of (expression * Token.t (* "?" *))
+      | `Exp_imme_quest of (
+            directly_assignable_expression * Token.t (* "?" *)
+        )
       | `Async of Token.t (* "async" *)
     ]
   | `Semg_exp_ellips of Token.t (* "..." *)
   | `Semg_ellips_meta of semgrep_ellipsis_metavar (*tok*)
   | `Semg_deep_ellips of (
-        Token.t (* "<..." *) * expression * custom_operator
+        Token.t (* "<..." *) * directly_assignable_expression
+      * custom_operator
     )
 ]
 
@@ -819,7 +833,7 @@ and for_statement = (
   * binding_pattern_no_expr
   * type_annotation option
   * Token.t (* "in" *)
-  * expression
+  * directly_assignable_expression
   * where_clause option
   * function_body
 )
@@ -839,7 +853,7 @@ and function_type = (
 and function_value_parameter = (
     attribute option
   * parameter
-  * (eq_custom (*tok*) * expression) option
+  * (eq_custom (*tok*) * directly_assignable_expression) option
 )
 
 and function_value_parameters =
@@ -866,10 +880,10 @@ and guard_statement = (
 and if_condition_sequence_item = [
     `If_let_bind of (
         direct_or_indirect_binding
-      * (eq_custom (*tok*) * expression) option
+      * (eq_custom (*tok*) * directly_assignable_expression) option
       * where_clause option
     )
-  | `Exp of expression
+  | `Exp of directly_assignable_expression
   | `Avai_cond of (
         Token.t (* "#available" *)
       * Token.t (* "(" *)
@@ -1015,7 +1029,7 @@ and local_declaration = [
 ]
 
 and local_statement = [
-    `Exp of expression
+    `Exp of directly_assignable_expression
   | `Local_decl of local_declaration
   | `Labe_stmt of labeled_statement
   | `Cont_tran_stmt of control_transfer_statement
@@ -1103,11 +1117,6 @@ and navigable_type_expression = [
   | `Dict_type of dictionary_type
 ]
 
-and navigation_expression = (
-    [ `Navi_type_exp of navigable_type_expression | `Exp of expression ]
-  * navigation_suffix
-)
-
 and no_expr_pattern_already_bound = (
     [
         `Univ_allo_pat of universally_allowed_pattern
@@ -1142,10 +1151,19 @@ and possibly_implicitly_unwrapped_type = (
   * imm_tok_bang (*tok*) option
 )
 
-and postfix_expression = (expression * postfix_unary_operator)
-
 and primary_expression = [
-    `Tuple_exp of tuple_expression
+    `Tuple_exp of (
+        Token.t (* "(" *)
+      * (bound_identifier * Token.t (* ":" *)) option
+      * directly_assignable_expression
+      * (
+            Token.t (* "," *)
+          * (bound_identifier * Token.t (* ":" *)) option
+          * directly_assignable_expression
+        )
+          list (* zero or more *)
+      * Token.t (* ")" *)
+    )
   | `Basic_lit of basic_literal
   | `Lambda_lit of lambda_literal
   | `Spec_lit of special_literal
@@ -1158,10 +1176,10 @@ and primary_expression = [
       * Token.t (* "(" *)
       * bound_identifier
       * Token.t (* ":" *)
-      * expression
+      * directly_assignable_expression
       * (
             Token.t (* "," *) * bound_identifier * Token.t (* ":" *)
-          * expression
+          * directly_assignable_expression
         )
           list (* zero or more *)
       * Token.t (* ")" *)
@@ -1169,8 +1187,9 @@ and primary_expression = [
   | `Array_lit of (
         Token.t (* "[" *)
       * (
-            expression
-          * (Token.t (* "," *) * expression) list (* zero or more *)
+            directly_assignable_expression
+          * (Token.t (* "," *) * directly_assignable_expression)
+              list (* zero or more *)
         )
           option
       * Token.t (* "," *) option
@@ -1194,7 +1213,7 @@ and primary_expression = [
   | `Try_exp of (
         try_operator
       * [
-            `Exp of expression
+            `Exp of directly_assignable_expression
           | `Bin_exp of binary_expression
           | `Call_exp of call_expression
           | `Tern_exp of ternary_expression
@@ -1203,7 +1222,7 @@ and primary_expression = [
   | `Await_exp of (
         Token.t (* "await" *)
       * [
-            `Exp of expression
+            `Exp of directly_assignable_expression
           | `Call_exp of call_expression
           | `Tern_exp of ternary_expression
         ]
@@ -1220,8 +1239,8 @@ and primary_expression = [
       * (Token.t (* "." *) * key_path_component) list (* zero or more *)
     )
   | `Key_path_str_exp of (
-        Token.t (* "#keyPath" *) * Token.t (* "(" *) * expression
-      * Token.t (* ")" *)
+        Token.t (* "#keyPath" *) * Token.t (* "(" *)
+      * directly_assignable_expression * Token.t (* ")" *)
     )
   | `Three_dot_op of Token.t (* "..." *)
 ]
@@ -1293,7 +1312,9 @@ and single_modifierless_property_declaration = (
   * type_annotation option
   * type_constraints option
   * [
-        `Equal_sign_exp of (eq_custom (*tok*) * expression)
+        `Equal_sign_exp of (
+            eq_custom (*tok*) * directly_assignable_expression
+        )
       | `Comp_prop of computed_property
     ]
       option
@@ -1366,30 +1387,20 @@ and switch_pattern = binding_pattern_with_expr
 
 and switch_statement = (
     Token.t (* "switch" *)
-  * expression
+  * directly_assignable_expression
   * Token.t (* "{" *)
   * switch_entry list (* zero or more *)
   * Token.t (* "}" *)
 )
 
 and ternary_expression = (
-    expression * Token.t (* "?" *) * expression * Token.t (* ":" *)
+    directly_assignable_expression * Token.t (* "?" *)
+  * directly_assignable_expression * Token.t (* ":" *)
   * expr_hack_at_ternary_binary_suffix
 )
 
-and throw_statement = (Token.t (* "throw" *) * expression)
-
-and tuple_expression = (
-    Token.t (* "(" *)
-  * (bound_identifier * Token.t (* ":" *)) option
-  * expression
-  * (
-        Token.t (* "," *)
-      * (bound_identifier * Token.t (* ":" *)) option
-      * expression
-    )
-      list (* zero or more *)
-  * Token.t (* ")" *)
+and throw_statement = (
+    Token.t (* "throw" *) * directly_assignable_expression
 )
 
 and tuple_pattern = (
@@ -1538,7 +1549,7 @@ and unannotated_type = [
 ]
 
 and unary_expression = [
-    `Post_exp of postfix_expression
+    `Post_exp of (directly_assignable_expression * postfix_unary_operator)
   | `Call_exp of call_expression
   | `Cons_exp of (
         [
@@ -1548,9 +1559,15 @@ and unary_expression = [
         ]
       * constructor_suffix
     )
-  | `Navi_exp of navigation_expression
-  | `Prefix_exp of (prefix_unary_operator * expression)
-  | `As_exp of (expression * as_operator * type_)
+  | `Navi_exp of (
+        [
+            `Navi_type_exp of navigable_type_expression
+          | `Exp of directly_assignable_expression
+        ]
+      * navigation_suffix
+    )
+  | `Prefix_exp of (prefix_unary_operator * directly_assignable_expression)
+  | `As_exp of (directly_assignable_expression * as_operator * type_)
   | `Sele_exp of (
         Token.t (* "#selector" *)
       * Token.t (* "(" *)
@@ -1559,11 +1576,15 @@ and unary_expression = [
           | `Sett of Token.t (* "setter:" *)
         ]
           option
-      * expression
+      * directly_assignable_expression
       * Token.t (* ")" *)
     )
-  | `Open_start_range_exp of (range_operator * expression)
-  | `Open_end_range_exp of (expression * Token.t (* "..." *))
+  | `Open_start_range_exp of (
+        range_operator * directly_assignable_expression
+    )
+  | `Open_end_range_exp of (
+        directly_assignable_expression * Token.t (* "..." *)
+    )
 ]
 
 and universally_allowed_pattern = [
@@ -1591,7 +1612,7 @@ and value_argument = (
           (value_argument_label * Token.t (* ":" *)) list (* one or more *)
       | `Opt_value_arg_label_COLON_exp of (
             (value_argument_label * Token.t (* ":" *)) option
-          * expression
+          * directly_assignable_expression
         )
     ]
 )
@@ -1606,7 +1627,7 @@ and value_arguments = [
     )
 ]
 
-and where_clause = (where_keyword (*tok*) * expression)
+and where_clause = (where_keyword (*tok*) * directly_assignable_expression)
 
 and while_statement = (
     Token.t (* "while" *)
@@ -1630,7 +1651,7 @@ type global_declaration = [
 ]
 
 type top_level_statement = [
-    `Exp of expression
+    `Exp of directly_assignable_expression
   | `Global_decl of global_declaration
   | `Labe_stmt of labeled_statement
   | `Throw_stmt of throw_statement
@@ -1747,30 +1768,38 @@ type availability_condition (* inlined *) = (
 )
 
 type additive_expression (* inlined *) = (
-    expression * additive_operator * expression
+    directly_assignable_expression * additive_operator
+  * directly_assignable_expression
 )
 
 type array_literal (* inlined *) = (
     Token.t (* "[" *)
-  * (expression * (Token.t (* "," *) * expression) list (* zero or more *))
+  * (
+        directly_assignable_expression
+      * (Token.t (* "," *) * directly_assignable_expression)
+          list (* zero or more *)
+    )
       option
   * Token.t (* "," *) option
   * Token.t (* "]" *)
 )
 
-type as_expression (* inlined *) = (expression * as_operator * type_)
+type as_expression (* inlined *) = (
+    directly_assignable_expression * as_operator * type_
+)
 
 type await_expression (* inlined *) = (
     Token.t (* "await" *)
   * [
-        `Exp of expression
+        `Exp of directly_assignable_expression
       | `Call_exp of call_expression
       | `Tern_exp of ternary_expression
     ]
 )
 
 type bitwise_operation (* inlined *) = (
-    expression * bitwise_binary_operator * expr_hack_at_ternary_binary_suffix
+    directly_assignable_expression * bitwise_binary_operator
+  * expr_hack_at_ternary_binary_suffix
 )
 
 type case_pattern (* inlined *) = (
@@ -1782,15 +1811,16 @@ type case_pattern (* inlined *) = (
 )
 
 type check_expression (* inlined *) = (
-    expression * Token.t (* "is" *) * type_
+    directly_assignable_expression * Token.t (* "is" *) * type_
 )
 
 type comparison_expression (* inlined *) = (
-    expression * comparison_operator * expr_hack_at_ternary_binary_suffix
+    directly_assignable_expression * comparison_operator
+  * expr_hack_at_ternary_binary_suffix
 )
 
 type conjunction_expression (* inlined *) = (
-    expression * conjunction_operator_custom (*tok*)
+    directly_assignable_expression * conjunction_operator_custom (*tok*)
   * expr_hack_at_ternary_binary_suffix
 )
 
@@ -1818,7 +1848,7 @@ type dictionary_literal (* inlined *) = (
 )
 
 type disjunction_expression (* inlined *) = (
-    expression * disjunction_operator_custom (*tok*)
+    directly_assignable_expression * disjunction_operator_custom (*tok*)
   * expr_hack_at_ternary_binary_suffix
 )
 
@@ -1827,12 +1857,12 @@ type enum_type_parameters (* inlined *) = (
   * (
         tuple_type_item_identifier option
       * type_
-      * (eq_custom (*tok*) * expression) option
+      * (eq_custom (*tok*) * directly_assignable_expression) option
       * (
             Token.t (* "," *)
           * tuple_type_item_identifier option
           * type_
-          * (eq_custom (*tok*) * expression) option
+          * (eq_custom (*tok*) * directly_assignable_expression) option
         )
           list (* zero or more *)
     )
@@ -1848,7 +1878,8 @@ type equality_constraint (* inlined *) = (
 )
 
 type equality_expression (* inlined *) = (
-    expression * equality_operator * expr_hack_at_ternary_binary_suffix
+    directly_assignable_expression * equality_operator
+  * expr_hack_at_ternary_binary_suffix
 )
 
 type existential_type (* inlined *) = (
@@ -1856,17 +1887,18 @@ type existential_type (* inlined *) = (
 )
 
 type expr_hack_at_ternary_binary_call (* inlined *) = (
-    expression * expr_hack_at_ternary_binary_call_suffix
+    directly_assignable_expression * expr_hack_at_ternary_binary_call_suffix
 )
 
 type if_let_binding (* inlined *) = (
     direct_or_indirect_binding
-  * (eq_custom (*tok*) * expression) option
+  * (eq_custom (*tok*) * directly_assignable_expression) option
   * where_clause option
 )
 
 type infix_expression (* inlined *) = (
-    expression * custom_operator * expr_hack_at_ternary_binary_suffix
+    directly_assignable_expression * custom_operator
+  * expr_hack_at_ternary_binary_suffix
 )
 
 type inheritance_constraint (* inlined *) = (
@@ -1888,8 +1920,8 @@ type key_path_expression (* inlined *) = (
 )
 
 type key_path_string_expression (* inlined *) = (
-    Token.t (* "#keyPath" *) * Token.t (* "(" *) * expression
-  * Token.t (* ")" *)
+    Token.t (* "#keyPath" *) * Token.t (* "(" *)
+  * directly_assignable_expression * Token.t (* ")" *)
 )
 
 type line_string_literal (* inlined *) = (
@@ -1936,22 +1968,31 @@ type multi_line_string_literal (* inlined *) = (
 )
 
 type multiplicative_expression (* inlined *) = (
-    expression * multiplicative_operator * expression
+    directly_assignable_expression * multiplicative_operator
+  * directly_assignable_expression
+)
+
+type navigation_expression (* inlined *) = (
+    [
+        `Navi_type_exp of navigable_type_expression
+      | `Exp of directly_assignable_expression
+    ]
+  * navigation_suffix
 )
 
 type nil_coalescing_expression (* inlined *) = (
-    expression * nil_coalescing_operator_custom (*tok*)
+    directly_assignable_expression * nil_coalescing_operator_custom (*tok*)
   * expr_hack_at_ternary_binary_suffix
 )
 
 type opaque_type (* inlined *) = (Token.t (* "some" *) * unannotated_type)
 
 type open_end_range_expression (* inlined *) = (
-    expression * Token.t (* "..." *)
+    directly_assignable_expression * Token.t (* "..." *)
 )
 
 type open_start_range_expression (* inlined *) = (
-    range_operator * expression
+    range_operator * directly_assignable_expression
 )
 
 type optional_type (* inlined *) = (
@@ -1973,13 +2014,22 @@ type playground_literal (* inlined *) = (
   * Token.t (* "(" *)
   * bound_identifier
   * Token.t (* ":" *)
-  * expression
-  * (Token.t (* "," *) * bound_identifier * Token.t (* ":" *) * expression)
+  * directly_assignable_expression
+  * (
+        Token.t (* "," *) * bound_identifier * Token.t (* ":" *)
+      * directly_assignable_expression
+    )
       list (* zero or more *)
   * Token.t (* ")" *)
 )
 
-type prefix_expression (* inlined *) = (prefix_unary_operator * expression)
+type postfix_expression (* inlined *) = (
+    directly_assignable_expression * postfix_unary_operator
+)
+
+type prefix_expression (* inlined *) = (
+    prefix_unary_operator * directly_assignable_expression
+)
 
 type protocol_composition_type (* inlined *) = (
     unannotated_type
@@ -1995,7 +2045,8 @@ type protocol_property_declaration (* inlined *) = (
 )
 
 type range_expression (* inlined *) = (
-    expression * range_operator * expr_hack_at_ternary_binary_suffix
+    directly_assignable_expression * range_operator
+  * expr_hack_at_ternary_binary_suffix
 )
 
 type raw_string_literal (* inlined *) = (
@@ -2013,25 +2064,41 @@ type selector_expression (* inlined *) = (
   * Token.t (* "(" *)
   * [ `Gett of Token.t (* "getter:" *) | `Sett of Token.t (* "setter:" *) ]
       option
-  * expression
+  * directly_assignable_expression
   * Token.t (* ")" *)
 )
 
 type semgrep_deep_ellipsis (* inlined *) = (
-    Token.t (* "<..." *) * expression * custom_operator
+    Token.t (* "<..." *) * directly_assignable_expression * custom_operator
 )
 
 type try_expression (* inlined *) = (
     try_operator
   * [
-        `Exp of expression
+        `Exp of directly_assignable_expression
       | `Bin_exp of binary_expression
       | `Call_exp of call_expression
       | `Tern_exp of ternary_expression
     ]
 )
 
+type tuple_expression (* inlined *) = (
+    Token.t (* "(" *)
+  * (bound_identifier * Token.t (* ":" *)) option
+  * directly_assignable_expression
+  * (
+        Token.t (* "," *)
+      * (bound_identifier * Token.t (* ":" *)) option
+      * directly_assignable_expression
+    )
+      list (* zero or more *)
+  * Token.t (* ")" *)
+)
+
 type non_binding_pattern_with_expr (* inlined *) = (
-    [ `Univ_allo_pat of universally_allowed_pattern | `Exp of expression ]
+    [
+        `Univ_allo_pat of universally_allowed_pattern
+      | `Exp of directly_assignable_expression
+    ]
   * Token.t (* "?" *) option
 )
