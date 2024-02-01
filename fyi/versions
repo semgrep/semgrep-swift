@@ -3,9 +3,6 @@ Git repo name: tree-sitter-swift
 Latest commit in repo: 597d544b3c93b2f67d2e143f27cc51ba874ec5c3
 Last change in file:
   commit 90cd9604a7db32fbec45a040a7bdb6aaa89b565c
-  gpg: Signature made Sat 14 Aug 2021 09:10:20 AM PDT
-  gpg:                using RSA key 4AEE18F83AFDEB23
-  gpg: Good signature from "GitHub (web-flow commit signing) <noreply@github.com>" [full]
   Author: alex-pinkus <62194897+alex-pinkus@users.noreply.github.com>
   Date:   Sat Aug 14 09:10:20 2021 -0700
   
@@ -33,7 +30,7 @@ Last change in file:
 ---
 File: semgrep-grammars/src/semgrep-swift/grammar.js
 Git repo name: ocaml-tree-sitter-semgrep
-Latest commit in repo: 1e0f6a81b84b57f58692e47b74544daccb08de8a
+Latest commit in repo: c9a8bca714137c43f8aede5ed2215193d53defc9
 Last change in file:
   commit 32f3fd22446cab32d4a6a0a08f34a4f0b03abe0a
   Author: Heejong Lee <heejong@gmail.com>
