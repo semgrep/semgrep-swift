@@ -2102,3 +2102,12 @@ type non_binding_pattern_with_expr (* inlined *) = (
     ]
   * Token.t (* "?" *) option
 )
+
+type extra = 
+    Comment of Loc.t * comment
+  | Multiline_comment of Loc.t * multiline_comment
+  | Directive of Loc.t * directive
+  | Diagnostic of Loc.t * diagnostic
+
+
+type extras = extra list

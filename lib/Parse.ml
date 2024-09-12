@@ -45,6 +45,7 @@ let children_regexps : (string * Run.exp option) list = [
   );
   "property_behavior_modifier", None;
   "three_dot_operator", None;
+  "comment", None;
   "function_modifier",
   Some (
     Alt [|
@@ -198,6 +199,7 @@ let children_regexps : (string * Run.exp option) list = [
     |];
   );
   "oneline_regex_literal", None;
+  "directive", None;
   "raw_str_part", None;
   "extended_regex_literal", None;
   "statement_label", None;
@@ -209,6 +211,7 @@ let children_regexps : (string * Run.exp option) list = [
   "semgrep_expression_ellipsis", None;
   "plus_then_ws", None;
   "multiline_comment", None;
+  "diagnostic", None;
   "pat_97d645c", None;
   "semgrep_ellipsis_metavar", None;
   "eq_custom", None;
@@ -3050,6 +3053,10 @@ let trans_three_dot_operator ((kind, body) : mt) : CST.three_dot_operator =
   | Leaf v -> v
   | Children _ -> assert false
 
+let trans_comment ((kind, body) : mt) : CST.comment =
+  match body with
+  | Leaf v -> v
+  | Children _ -> assert false
 
 let trans_function_modifier ((kind, body) : mt) : CST.function_modifier =
   match body with
@@ -3544,6 +3551,10 @@ let trans_oneline_regex_literal ((kind, body) : mt) : CST.oneline_regex_literal 
   | Leaf v -> v
   | Children _ -> assert false
 
+let trans_directive ((kind, body) : mt) : CST.directive =
+  match body with
+  | Leaf v -> v
+  | Children _ -> assert false
 
 let trans_raw_str_part ((kind, body) : mt) : CST.raw_str_part =
   match body with
@@ -3601,6 +3612,10 @@ let trans_multiline_comment ((kind, body) : mt) : CST.multiline_comment =
   | Leaf v -> v
   | Children _ -> assert false
 
+let trans_diagnostic ((kind, body) : mt) : CST.diagnostic =
+  match body with
+  | Leaf v -> v
+  | Children _ -> assert false
 
 let trans_pat_97d645c ((kind, body) : mt) : CST.pat_97d645c =
   match body with
@@ -9577,14 +9592,61 @@ let trans_source_file ((kind, body) : mt) : CST.source_file =
       )
   | Leaf _ -> assert false
 
+(*
+   Costly operation that translates a whole tree or subtree.
+
+   The first pass translates it into a generic tree structure suitable
+   to guess which node corresponds to each grammar rule.
+   The second pass is a translation into a typed tree where each grammar
+   node has its own type.
+
+   This function is called:
+   - once on the root of the program after removing extras
+     (comments and other nodes that occur anywhere independently from
+     the grammar);
+   - once of each extra node, resulting in its own independent tree of type
+     'extra'.
+*)
+let translate_tree src node trans_x =
+  let matched_tree = Run.match_tree children_regexps src node in
+  Option.map trans_x matched_tree
+
+
+let translate_extra src (node : Tree_sitter_output_t.node) : CST.extra option =
+  match node.type_ with
+  | "comment" ->
+      (match translate_tree src node trans_comment with
+      | None -> None
+      | Some x -> Some (Comment (Run.get_loc node, x)))
+  | "multiline_comment" ->
+      (match translate_tree src node trans_multiline_comment with
+      | None -> None
+      | Some x -> Some (Multiline_comment (Run.get_loc node, x)))
+  | "directive" ->
+      (match translate_tree src node trans_directive with
+      | None -> None
+      | Some x -> Some (Directive (Run.get_loc node, x)))
+  | "diagnostic" ->
+      (match translate_tree src node trans_diagnostic with
+      | None -> None
+      | Some x -> Some (Diagnostic (Run.get_loc node, x)))
+  | _ -> None
+
+let translate_root src root_node =
+  translate_tree src root_node trans_source_file
+
 let parse_input_tree input_tree =
   let orig_root_node = Tree_sitter_parsing.root input_tree in
   let src = Tree_sitter_parsing.src input_tree in
   let errors = Run.extract_errors src orig_root_node in
-  let root_node = Run.remove_extras ~extras orig_root_node in
-  let matched_tree = Run.match_tree children_regexps src root_node in
-  let opt_program = Option.map trans_source_file matched_tree in
-  Parsing_result.create src opt_program errors
+  let opt_program, extras =
+     Run.translate
+       ~extras
+       ~translate_root:(translate_root src)
+       ~translate_extra:(translate_extra src)
+       orig_root_node
+  in
+  Parsing_result.create src opt_program extras errors
 
 let string ?src_file contents =
   let input_tree = parse_source_string ?src_file contents in

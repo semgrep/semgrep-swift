@@ -3910,7 +3910,35 @@ let map_source_file (env : env) ((v1, v2) : CST.source_file) =
   in
   R.Tuple [v1; v2]
 
+let map_comment (env : env) (tok : CST.comment) =
+  (* comment *) token env tok
+
+let map_directive (env : env) (tok : CST.directive) =
+  (* directive *) token env tok
+
+let map_diagnostic (env : env) (tok : CST.diagnostic) =
+  (* diagnostic *) token env tok
+
 let dump_tree root =
   map_source_file () root
-  |> Tree_sitter_run.Raw_tree.to_string
-  |> print_string
+  |> Tree_sitter_run.Raw_tree.to_channel stdout
+
+let map_extra (env : env) (x : CST.extra) =
+  match x with
+  | Comment (_loc, x) -> ("comment", "comment", map_comment env x)
+  | Multiline_comment (_loc, x) -> ("multiline_comment", "multiline_comment", map_multiline_comment env x)
+  | Directive (_loc, x) -> ("directive", "directive", map_directive env x)
+  | Diagnostic (_loc, x) -> ("diagnostic", "diagnostic", map_diagnostic env x)
+
+let dump_extras (extras : CST.extras) =
+  List.iter (fun extra ->
+    let ts_rule_name, ocaml_type_name, raw_tree = map_extra () extra in
+    let details =
+      if ocaml_type_name <> ts_rule_name then
+        Printf.sprintf " (OCaml type '%s')" ocaml_type_name
+      else
+        ""
+    in
+    Printf.printf "%s%s:\n" ts_rule_name details;
+    Tree_sitter_run.Raw_tree.to_channel stdout raw_tree
+  ) extras
