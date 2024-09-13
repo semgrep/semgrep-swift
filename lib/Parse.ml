@@ -9617,19 +9617,19 @@ let translate_extra src (node : Tree_sitter_output_t.node) : CST.extra option =
   | "comment" ->
       (match translate_tree src node trans_comment with
       | None -> None
-      | Some x -> Some (Comment (Run.get_loc node, x)))
+      | Some x -> Some (`Comment (Run.get_loc node, x)))
   | "multiline_comment" ->
       (match translate_tree src node trans_multiline_comment with
       | None -> None
-      | Some x -> Some (Multiline_comment (Run.get_loc node, x)))
+      | Some x -> Some (`Multiline_comment (Run.get_loc node, x)))
   | "directive" ->
       (match translate_tree src node trans_directive with
       | None -> None
-      | Some x -> Some (Directive (Run.get_loc node, x)))
+      | Some x -> Some (`Directive (Run.get_loc node, x)))
   | "diagnostic" ->
       (match translate_tree src node trans_diagnostic with
       | None -> None
-      | Some x -> Some (Diagnostic (Run.get_loc node, x)))
+      | Some x -> Some (`Diagnostic (Run.get_loc node, x)))
   | _ -> None
 
 let translate_root src root_node =

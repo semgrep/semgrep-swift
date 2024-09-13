@@ -3925,10 +3925,10 @@ let dump_tree root =
 
 let map_extra (env : env) (x : CST.extra) =
   match x with
-  | Comment (_loc, x) -> ("comment", "comment", map_comment env x)
-  | Multiline_comment (_loc, x) -> ("multiline_comment", "multiline_comment", map_multiline_comment env x)
-  | Directive (_loc, x) -> ("directive", "directive", map_directive env x)
-  | Diagnostic (_loc, x) -> ("diagnostic", "diagnostic", map_diagnostic env x)
+  | `Comment (_loc, x) -> ("comment", "comment", map_comment env x)
+  | `Multiline_comment (_loc, x) -> ("multiline_comment", "multiline_comment", map_multiline_comment env x)
+  | `Directive (_loc, x) -> ("directive", "directive", map_directive env x)
+  | `Diagnostic (_loc, x) -> ("diagnostic", "diagnostic", map_diagnostic env x)
 
 let dump_extras (extras : CST.extras) =
   List.iter (fun extra ->
