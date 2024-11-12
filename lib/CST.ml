@@ -1137,14 +1137,18 @@ and operator_declaration = (
   * deprecated_operator_declaration_body option
 )
 
-and parameter = (
-    bound_identifier option
-  * bound_identifier
-  * Token.t (* ":" *)
-  * parameter_modifiers option
-  * possibly_implicitly_unwrapped_type
-  * Token.t (* "..." *) option
-)
+and parameter = [
+    `Opt_simple_id_simple_id_COLON_opt_param_modifs_poss_impl_unwr_type_opt_three_dot_op of (
+        bound_identifier option
+      * bound_identifier
+      * Token.t (* ":" *)
+      * parameter_modifiers option
+      * possibly_implicitly_unwrapped_type
+      * Token.t (* "..." *) option
+    )
+  | `Semg_ellips of Token.t (* "..." *)
+  | `Semg_ellips_meta of semgrep_ellipsis_metavar (*tok*)
+]
 
 and possibly_implicitly_unwrapped_type = (
     type_

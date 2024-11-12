@@ -30,13 +30,15 @@ Last change in file:
 ---
 File: semgrep-grammars/src/semgrep-swift/grammar.js
 Git repo name: ocaml-tree-sitter-semgrep
-Latest commit in repo: 62c59803ce966ac00210b5ed8aa163a926f7eaad
+Latest commit in repo: 12e7143a5ee5f0cb910e055f9a02edad2069ab25
 Last change in file:
-  commit 32f3fd22446cab32d4a6a0a08f34a4f0b03abe0a
-  Author: Heejong Lee <heejong@gmail.com>
-  Date:   Tue May 16 17:30:10 2023 -0700
+  commit 12e7143a5ee5f0cb910e055f9a02edad2069ab25
+  Author: Brandon Wu <49291449+brandonspark@users.noreply.github.com>
+  Date:   Tue Nov 12 09:33:26 2024 -0800
   
-      swift: Support named ellipsis
+      fix(swift): allow ellipses in function parameters (#517)
       
-      returntocorp/semgrep#7666
+      * allow metavariables in function parameters
+      
+      * ellipsis metavariables too
 ---

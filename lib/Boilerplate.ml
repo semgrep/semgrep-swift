@@ -2645,32 +2645,42 @@ and map_operator_declaration (env : env) ((v1, v2, v3, v4, v5) : CST.operator_de
   in
   R.Tuple [v1; v2; v3; v4; v5]
 
-and map_parameter (env : env) ((v1, v2, v3, v4, v5, v6) : CST.parameter) =
-  let v1 =
-    (match v1 with
-    | Some x -> R.Option (Some (
-        map_bound_identifier env x
-      ))
-    | None -> R.Option None)
-  in
-  let v2 = map_bound_identifier env v2 in
-  let v3 = (* ":" *) token env v3 in
-  let v4 =
-    (match v4 with
-    | Some x -> R.Option (Some (
-        map_parameter_modifiers env x
-      ))
-    | None -> R.Option None)
-  in
-  let v5 = map_possibly_implicitly_unwrapped_type env v5 in
-  let v6 =
-    (match v6 with
-    | Some tok -> R.Option (Some (
-        (* "..." *) token env tok
-      ))
-    | None -> R.Option None)
-  in
-  R.Tuple [v1; v2; v3; v4; v5; v6]
+and map_parameter (env : env) (x : CST.parameter) =
+  (match x with
+  | `Opt_simple_id_simple_id_COLON_opt_param_modifs_poss_impl_unwr_type_opt_three_dot_op (v1, v2, v3, v4, v5, v6) -> R.Case ("Opt_simple_id_simple_id_COLON_opt_param_modifs_poss_impl_unwr_type_opt_three_dot_op",
+      let v1 =
+        (match v1 with
+        | Some x -> R.Option (Some (
+            map_bound_identifier env x
+          ))
+        | None -> R.Option None)
+      in
+      let v2 = map_bound_identifier env v2 in
+      let v3 = (* ":" *) token env v3 in
+      let v4 =
+        (match v4 with
+        | Some x -> R.Option (Some (
+            map_parameter_modifiers env x
+          ))
+        | None -> R.Option None)
+      in
+      let v5 = map_possibly_implicitly_unwrapped_type env v5 in
+      let v6 =
+        (match v6 with
+        | Some tok -> R.Option (Some (
+            (* "..." *) token env tok
+          ))
+        | None -> R.Option None)
+      in
+      R.Tuple [v1; v2; v3; v4; v5; v6]
+    )
+  | `Semg_ellips tok -> R.Case ("Semg_ellips",
+      (* "..." *) token env tok
+    )
+  | `Semg_ellips_meta tok -> R.Case ("Semg_ellips_meta",
+      (* pattern \$\.\.\.[a-zA-Z_][a-zA-Z_0-9]* *) token env tok
+    )
+  )
 
 and map_possibly_implicitly_unwrapped_type (env : env) ((v1, v2) : CST.possibly_implicitly_unwrapped_type) =
   let v1 = map_type_ env v1 in

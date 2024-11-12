@@ -2213,20 +2213,24 @@ let children_regexps : (string * Run.exp option) list = [
   );
   "parameter",
   Some (
-    Seq [
-      Opt (
+    Alt [|
+      Seq [
+        Opt (
+          Token (Name "simple_identifier");
+        );
         Token (Name "simple_identifier");
-      );
-      Token (Name "simple_identifier");
-      Token (Literal ":");
-      Opt (
-        Token (Name "parameter_modifiers");
-      );
-      Token (Name "possibly_implicitly_unwrapped_type");
-      Opt (
-        Token (Name "three_dot_operator");
-      );
-    ];
+        Token (Literal ":");
+        Opt (
+          Token (Name "parameter_modifiers");
+        );
+        Token (Name "possibly_implicitly_unwrapped_type");
+        Opt (
+          Token (Name "three_dot_operator");
+        );
+      ];
+      Token (Name "semgrep_ellipsis");
+      Token (Name "semgrep_ellipsis_metavar");
+    |];
   );
   "playground_literal",
   Some (
@@ -7891,23 +7895,37 @@ and trans_parameter ((kind, body) : mt) : CST.parameter =
   match body with
   | Children v ->
       (match v with
-      | Seq [v0; v1; v2; v3; v4; v5] ->
-          (
-            Run.opt
-              (fun v -> trans_simple_identifier (Run.matcher_token v))
-              v0
-            ,
-            trans_simple_identifier (Run.matcher_token v1),
-            Run.trans_token (Run.matcher_token v2),
-            Run.opt
-              (fun v -> trans_parameter_modifiers (Run.matcher_token v))
-              v3
-            ,
-            trans_possibly_implicitly_unwrapped_type (Run.matcher_token v4)
-            ,
-            Run.opt
-              (fun v -> trans_three_dot_operator (Run.matcher_token v))
-              v5
+      | Alt (0, v) ->
+          `Opt_simple_id_simple_id_COLON_opt_param_modifs_poss_impl_unwr_type_opt_three_dot_op (
+            (match v with
+            | Seq [v0; v1; v2; v3; v4; v5] ->
+                (
+                  Run.opt
+                    (fun v -> trans_simple_identifier (Run.matcher_token v))
+                    v0
+                  ,
+                  trans_simple_identifier (Run.matcher_token v1),
+                  Run.trans_token (Run.matcher_token v2),
+                  Run.opt
+                    (fun v -> trans_parameter_modifiers (Run.matcher_token v))
+                    v3
+                  ,
+                  trans_possibly_implicitly_unwrapped_type (Run.matcher_token v4)
+                  ,
+                  Run.opt
+                    (fun v -> trans_three_dot_operator (Run.matcher_token v))
+                    v5
+                )
+            | _ -> assert false
+            )
+          )
+      | Alt (1, v) ->
+          `Semg_ellips (
+            trans_semgrep_ellipsis (Run.matcher_token v)
+          )
+      | Alt (2, v) ->
+          `Semg_ellips_meta (
+            trans_semgrep_ellipsis_metavar (Run.matcher_token v)
           )
       | _ -> assert false
       )
